@@ -31,7 +31,7 @@ jobs:
 
       - name: Generate site
         run: |
-          bundle exec lutaml uml build-spa 20251010_current_plateau_v5.1.qea -o index.html
+          bundle exec ea spa 20251010_current_plateau_v5.1.qea -o index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

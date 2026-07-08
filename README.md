@@ -24,10 +24,11 @@ The site can be accessed at:
 
 ## Generate the Web Page
 
-To generate the `browser.html` file from the QEA model:
+To generate the `index.html` file from the QEA model:
 
 ```bash
-bundle exec lutaml uml build-spa 20251010_current_plateau_v5.1.qea -o browser.html
+bundle install
+bundle exec ea spa 20251010_current_plateau_v5.1.qea -o index.html
 ```
 
 This will create a single-page application (SPA) that can be opened in any web browser to visualize the UML model.
