@@ -29,9 +29,15 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
 
-      - name: Generate site
+      - name: Generate CityGML 2.0 SPA (PLATEAU v5.1)
         run: |
-          bundle exec ea spa 20251010_current_plateau_v5.1.qea -o index.html
+          mkdir -p citygml-2
+          bundle exec ea spa 20251010_current_plateau_v5.1.qea -o citygml-2/index.html
+
+      - name: Generate CityGML 3.0 SPA (Consolidated Draft)
+        run: |
+          mkdir -p citygml-3
+          bundle exec ea spa 20260323_CityGML_3.0_Consolidated_Draft.qea -o citygml-3/index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

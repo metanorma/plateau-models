@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ja" data-lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-ja="PLATEAU モデル | 3D都市モデル UMLブラウザ" data-en="PLATEAU Model | 3D City Model UML Browser">PLATEAU モデル | 3D都市モデル UMLブラウザ</title>
+  <meta name="description" data-ja="PLATEAU 3D都市モデルのUMLブラウザ。CityGML 2.0 および CityGML 3.0 の両モデルをインタラクティブに探索できます。" data-en="Interactive UML browser for the PLATEAU 3D City Model. Explore both the CityGML 2.0 and CityGML 3.0 model specifications.">
+  <meta name="generator" content="PLATEAU Model Site">
+  <link rel="canonical" href="https://metanorma.github.io/plateau-model/">
+
+  <style>
+    :root {
+      --color-bg: #ffffff;
+      --color-bg-subtle: #f6f8fa;
+      --color-bg-elevated: #ffffff;
+      --color-surface-hover: #f1f4f7;
+
+      --color-text-primary: #0f2c44;
+      --color-text-secondary: #466079;
+      --color-text-muted: #7a8b9c;
+      --color-text-inverse: #ffffff;
+
+      --color-accent: #0f6fb8;
+      --color-accent-strong: #0a5589;
+      --color-accent-soft: #e7f1f9;
+      --color-stamp-cg2: #2c7a3f;
+      --color-stamp-cg2-bg: #e8f3ec;
+      --color-stamp-cg3: #b8860b;
+      --color-stamp-cg3-bg: #fbf3e0;
+
+      --color-border: #d9e1e8;
+      --color-border-strong: #b6c4d1;
+      --color-shadow: 0 1px 2px rgba(15, 44, 68, 0.04), 0 4px 12px rgba(15, 44, 68, 0.06);
+      --color-shadow-hover: 0 2px 6px rgba(15, 44, 68, 0.06), 0 12px 28px rgba(15, 44, 68, 0.10);
+
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 14px;
+
+      --max-width: 1180px;
+      --header-height: 64px;
+
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, "Yu Gothic", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+    }
+
+    [data-theme="dark"] {
+      --color-bg: #0b1622;
+      --color-bg-subtle: #131f2e;
+      --color-bg-elevated: #18273a;
+      --color-surface-hover: #1d2f45;
+
+      --color-text-primary: #e8f0f7;
+      --color-text-secondary: #b3c2d1;
+      --color-text-muted: #7d8ea1;
+
+      --color-accent: #4ea3e0;
+      --color-accent-strong: #7cbef0;
+      --color-accent-soft: #16273a;
+
+      --color-stamp-cg2: #5fb872;
+      --color-stamp-cg2-bg: #16241b;
+      --color-stamp-cg3: #e0a93c;
+      --color-stamp-cg3-bg: #2a2014;
+
+      --color-border: #1f3047;
+      --color-border-strong: #2c4361;
+      --color-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.25);
+      --color-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.35), 0 12px 28px rgba(0, 0, 0, 0.4);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.65;
+      color: var(--color-text-primary);
+      background: var(--color-bg);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    a { color: var(--color-accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    a:focus-visible, button:focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+      border-radius: var(--radius-sm);
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--color-bg);
+      border-bottom: 1px solid var(--color-border);
+      backdrop-filter: saturate(180%) blur(12px);
+      -webkit-backdrop-filter: saturate(180%) blur(12px);
+    }
+    .site-header__inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px;
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--color-text-primary);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .brand:hover { text-decoration: none; }
+    .brand__mark {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      color: var(--color-accent);
+    }
+    .brand__wordmark {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+    .brand__wordmark-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .brand__wordmark-sub {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--color-text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    .site-header__actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pill-toggle {
+      display: inline-flex;
+      align-items: center;
+      background: var(--color-bg-subtle);
+      border: 1px solid var(--color-border);
+      border-radius: 999px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .pill-toggle__btn {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--color-text-secondary);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+    .pill-toggle__btn:hover { color: var(--color-text-primary); }
+    .pill-toggle__btn[aria-pressed="true"] {
+      background: var(--color-bg-elevated);
+      color: var(--color-accent-strong);
+      box-shadow: 0 1px 2px rgba(15, 44, 68, 0.08);
+    }
+
+    .icon-button {
+      appearance: none;
+      border: 1px solid var(--color-border);
+      background: var(--color-bg);
+      color: var(--color-text-secondary);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+    .icon-button:hover {
+      background: var(--color-surface-hover);
+      color: var(--color-text-primary);
+    }
+    .icon-button svg { width: 18px; height: 18px; }
+
+    .hero {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 72px 24px 32px;
+    }
+    .hero__eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--color-accent-soft);
+      color: var(--color-accent-strong);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .hero__eyebrow::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-accent);
+    }
+    .hero__title {
+      font-size: clamp(32px, 5vw, 48px);
+      line-height: 1.15;
+      letter-spacing: -0.015em;
+      margin: 0 0 16px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+    .hero__title-accent { color: var(--color-accent); }
+    .hero__lede {
+      font-size: 17px;
+      max-width: 720px;
+      color: var(--color-text-secondary);
+      margin: 0 0 32px;
+    }
+    .hero__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--color-border);
+      color: var(--color-text-muted);
+      font-size: 13px;
+    }
+    .hero__meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hero__meta-item strong {
+      color: var(--color-text-secondary);
+      font-weight: 600;
+    }
+
+    .models {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 24px 24px 80px;
+    }
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 32px 0 24px;
+      color: var(--color-text-primary);
+      letter-spacing: -0.005em;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .section-title__sub {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-muted);
+    }
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 24px;
+    }
+    .model-card {
+      position: relative;
+      background: var(--color-bg-elevated);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: var(--color-shadow);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .model-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--color-shadow-hover);
+      border-color: var(--color-border-strong);
+    }
+    .model-card__head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .model-card__ident {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .stamp {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      width: max-content;
+    }
+    .stamp--cg2 {
+      color: var(--color-stamp-cg2);
+      background: var(--color-stamp-cg2-bg);
+    }
+    .stamp--cg3 {
+      color: var(--color-stamp-cg3);
+      background: var(--color-stamp-cg3-bg);
+    }
+    .stamp__dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .model-card__title {
+      font-size: 26px;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.01em;
+      color: var(--color-text-primary);
+      line-height: 1.2;
+    }
+    .model-card__subtitle {
+      font-size: 14px;
+      color: var(--color-text-muted);
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      margin: 0;
+    }
+    .model-card__glyph {
+      width: 56px;
+      height: 56px;
+      flex-shrink: 0;
+      color: var(--color-accent);
+      background: var(--color-accent-soft);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .model-card__glyph svg { width: 28px; height: 28px; }
+
+    .model-card__desc {
+      color: var(--color-text-secondary);
+      font-size: 15px;
+      line-height: 1.6;
+      margin: 0;
+    }
+    .model-card__meta {
+      list-style: none;
+      padding: 16px 0 0;
+      margin: 0;
+      border-top: 1px solid var(--color-border);
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px 16px;
+    }
+    .model-card__meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .model-card__meta-label {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .model-card__meta-value {
+      font-size: 14px;
+      color: var(--color-text-primary);
+      font-weight: 500;
+    }
+    .model-card__meta-value code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      background: var(--color-bg-subtle);
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      word-break: break-all;
+    }
+    .model-card__cta {
+      margin-top: auto;
+      padding-top: 8px;
+    }
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: var(--color-accent);
+      color: var(--color-text-inverse);
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      transition: background-color 0.15s ease, transform 0.15s ease;
+      width: 100%;
+      justify-content: center;
+    }
+    .cta-button:hover {
+      background: var(--color-accent-strong);
+      color: var(--color-text-inverse);
+      text-decoration: none;
+    }
+    .cta-button:active { transform: scale(0.99); }
+    .cta-button__arrow {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.15s ease;
+    }
+    .cta-button:hover .cta-button__arrow { transform: translateX(3px); }
+
+    .notes {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px 64px;
+    }
+    .notes__callout {
+      background: var(--color-bg-subtle);
+      border: 1px solid var(--color-border);
+      border-left: 3px solid var(--color-accent);
+      padding: 16px 20px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+    .notes__callout strong { color: var(--color-text-primary); }
+
+    .site-footer {
+      border-top: 1px solid var(--color-border);
+      background: var(--color-bg-subtle);
+      padding: 32px 24px;
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
+    .site-footer__inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px 32px;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .site-footer__links {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .site-footer__links a {
+      color: var(--color-text-secondary);
+      font-weight: 500;
+    }
+
+    html[data-lang="ja"] [data-en],
+    html[data-lang="en"] [data-ja] {
+      display: none !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+
+    @media (max-width: 640px) {
+      .hero { padding: 48px 20px 16px; }
+      .models { padding: 16px 20px 48px; }
+      .notes { padding: 0 20px 48px; }
+      .model-card { padding: 24px; }
+      .model-card__meta { grid-template-columns: 1fr; }
+      .brand__wordmark-sub { display: none; }
+      .site-header__inner { padding: 0 16px; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a href="/" class="brand" aria-label="PLATEAU Model">
+        <svg class="brand__mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="2" y="20" width="6" height="9" rx="1" fill="currentColor"/>
+          <rect x="11" y="14" width="6" height="15" rx="1" fill="currentColor" opacity="0.85"/>
+          <rect x="20" y="8" width="6" height="21" rx="1" fill="currentColor" opacity="0.7"/>
+          <path d="M3 18 L12 12 L21 6 L28 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <circle cx="28" cy="4" r="1.8" fill="currentColor"/>
+        </svg>
+        <span class="brand__wordmark">
+          <span class="brand__wordmark-title">PLATEAU Model</span>
+          <span class="brand__wordmark-sub" data-ja="3D都市モデル UMLブラウザ" data-en="3D City Model UML Browser">3D都市モデル UMLブラウザ</span>
+        </span>
+      </a>
+
+      <div class="site-header__actions">
+        <div class="pill-toggle" role="group" aria-label="Language / 言語">
+          <button type="button" class="pill-toggle__btn" data-lang-target="ja" aria-pressed="true">日本語</button>
+          <button type="button" class="pill-toggle__btn" data-lang-target="en" aria-pressed="false">English</button>
+        </div>
+        <button type="button" class="icon-button" data-theme-toggle aria-label="Toggle theme / テーマ切替" title="Theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="hero">
+      <span class="hero__eyebrow" data-ja="Project PLATEAU" data-en="Project PLATEAU">Project PLATEAU</span>
+      <h1 class="hero__title">
+        <span data-ja="3D都市モデルを" data-en="Explore the"></span>
+        <span class="hero__title-accent" data-ja="UMLで探る" data-en="3D City Model in UML"></span>
+      </h1>
+      <p class="hero__lede" data-ja="PLATEAU 3D都市モデルのUML仕様をインタラクティブに検索・閲覧するためのブラウザです。CityGML 2.0 の現行運用モデルと、CityGML 3.0 の次世代ドラフトモデルを並べて提供しています。" data-en="An interactive browser for the PLATEAU 3D City Model UML specifications. Side-by-side access to the production CityGML 2.0 model and the next-generation CityGML 3.0 consolidated draft.">
+        PLATEAU 3D都市モデルのUML仕様をインタラクティブに検索・閲覧するためのブラウザです。CityGML 2.0 の現行運用モデルと、CityGML 3.0 の次世代ドラフトモデルを並べて提供しています。
+      </p>
+
+      <div class="hero__meta">
+        <span class="hero__meta-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          <span><strong data-ja="提供元" data-en="Provided by">提供元</strong>: MLIT Japan</span>
+        </span>
+        <span class="hero__meta-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 7l-8 4-8-4 8-4 8 4zM4 12l8 4 8-4M4 17l8 4 8-4"/></svg>
+          <span><strong data-ja="規格" data-en="Schema">規格</strong>: CityGML 2.0 / 3.0</span>
+        </span>
+        <span class="hero__meta-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span><strong data-ja="配信元" data-en="Source">配信元</strong>: <a href="https://www.mlit.go.jp/plateau/" rel="noopener">mlit.go.jp/plateau</a></span>
+        </span>
+      </div>
+    </section>
+
+    <section class="models">
+      <h2 class="section-title">
+        <span data-ja="モデルを選択" data-en="Choose a model">モデルを選択</span>
+        <span class="section-title__sub" data-ja="2 つの UML モデル仕様を並べて提供しています" data-en="Two UML model specifications side-by-side"></span>
+      </h2>
+
+      <div class="model-grid">
+
+        <article class="model-card" data-model="citygml-2">
+          <div class="model-card__head">
+            <div class="model-card__ident">
+              <span class="stamp stamp--cg2">
+                <span class="stamp__dot"></span>
+                <span data-ja="現行" data-en="Production">現行</span>
+                <span aria-hidden="true">·</span>
+                <span>CityGML 2.0</span>
+              </span>
+              <h3 class="model-card__title">PLATEAU v5.1</h3>
+              <p class="model-card__subtitle" data-ja="現行運用モデル" data-en="Current operational model">現行運用モデル</p>
+            </div>
+            <div class="model-card__glyph" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6M9 11h.01M15 11h.01"/>
+              </svg>
+            </div>
+          </div>
+
+          <p class="model-card__desc" data-ja="CityGML 2.0 を基盤とする PLATEAU 標準データ製品仕様。i-UR、FGD、および関連する都市計画スキーマを含む、日本の 3D 都市モデルの現行運用モデルです。" data-en="The PLATEAU Standard Data Product Specification built on CityGML 2.0. The operational Japanese 3D city model, including i-UR, FGD, and related urban-planning schemas.">CityGML 2.0 を基盤とする PLATEAU 標準データ製品仕様。i-UR、FGD、および関連する都市計画スキーマを含む、日本の 3D 都市モデルの現行運用モデルです。</p>
+
+          <dl class="model-card__meta">
+            <div class="model-card__meta-item">
+              <dt class="model-card__meta-label" data-ja="スキーマ" data-en="Schema">スキーマ</dt>
+              <dd class="model-card__meta-value">CityGML 2.0</dd>
+            </div>
+            <div class="model-card__meta-item">
+              <dt class="model-card__meta-label" data-ja="バージョン" data-en="Version">バージョン</dt>
+              <dd class="model-card__meta-value">PLATEAU 5.1</dd>
+            </div>
+            <div class="model-card__meta-item">
+              <dt class="model-card__meta-label" data-ja="更新日" data-en="Source date">更新日</dt>
+              <dd class="model-card__meta-value"><time datetime="2025-10-10">2025-10-10</time></dd>
+            </div>
+            <div class="model-card__meta-item">
+              <dt class="model-card__meta-label" data-ja="形式" data-en="Source">形式</dt>
+              <dd class="model-card__meta-value"><code>.qea</code></dd>
+            </div>
+          </dl>
+
+          <div class="model-card__cta">
+            <a class="cta-button" href="citygml-2/">
+              <span data-ja="UMLブラウザを開く" data-en="Open UML Browser">UMLブラウザを開く</span>
+              <svg class="cta-button__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </article>
+
+        <article class="model-card" data-model="citygml-3">
+          <div class="model-card__head">
+            <div class="model-card__ident">
+              <span class="stamp stamp--cg3">
+                <span class="stamp__dot"></span>
+                <span data-ja="次世代" data-en="Next-gen">次世代</span>
+                <span aria-hidden="true">·</span>
+                <span>CityGML 3.0</span>
+              </span>
+              <h3 class="model-card__title" data-ja="統合ドラフト (Consolidated Draft)" data-en="Consolidated Draft">統合ドラフト (Consolidated Draft)</h3>
+              <p class="model-card__subtitle" data-ja="次世代 PLATEAU 仕様" data-en="Next-generation PLATEAU specification">次世代 PLATEAU 仕様</p>
+            </div>
+            <div class="model-card__glyph" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2l3 6 6 1-4.5 4.5L18 20l-6-3-6 3 1.5-6.5L3 9l6-1 3-6z"/>
+              </svg>
+            </div>
+          </div>
+
+          <p class="model-card__desc" data-ja="CityGML 3.0 に基づく次世代 PLATEAU モデルの統合ドラフト。モジュール構造の再編、バージョニング、メタデータ、空間参照など、将来の運用モデルの中核となる新概念を導入しています。" data-en="The consolidated draft of the next-generation PLATEAU model based on CityGML 3.0. Introduces restructured modules and new concepts (versioning, metadata, spatial references) that will shape the future operational specification.">CityGML 3.0 に基づく次世代 PLATEAU モデルの統合ドラフト。モジュール構造の再編、バージョニング、メタデータ、空間参照など、将来の運用モデルの中核となる新概念を導入しています。</p>
+
+          <dl class="model-card__meta">
+            <div class="model-card__meta-item">
+              <dt class="model-card__meta-label" data-ja="スキーマ" data-en="Schema">スキーマ</dt>
+              <dd class="model-card__meta-value">CityGML 3.0</dd>
+            </div>
+            <div class="model-card__meta-item">
+              <dt class="model-card__meta-label" data-ja="ステータス" data-en="Status">ステータス</dt>
+              <dd class="model-card__meta-value" data-ja="ドラフト" data-en="Draft">ドラフト</dd>
+            </div>
+            <div class="model-card__meta-item">
+              <dt class="model-card__meta-label" data-ja="更新日" data-en="Source date">更新日</dt>
+              <dd class="model-card__meta-value"><time datetime="2026-03-23">2026-03-23</time></dd>
+            </div>
+            <div class="model-card__meta-item">
+              <dt class="model-card__meta-label" data-ja="形式" data-en="Source">形式</dt>
+              <dd class="model-card__meta-value"><code>.qea</code></dd>
+            </div>
+          </dl>
+
+          <div class="model-card__cta">
+            <a class="cta-button" href="citygml-3/">
+              <span data-ja="UMLブラウザを開く" data-en="Open UML Browser">UMLブラウザを開く</span>
+              <svg class="cta-button__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <section class="notes">
+      <div class="notes__callout">
+        <strong data-ja="出典:" data-en="Source:">出典:</strong>
+        <span data-ja="本サイトは MLIT Project PLATEAU が公開する UML モデルを、Metanorma / LutaML によってブラウザで閲覧できるよう整形したものです。モデルの著作権・ライセンスは原著作者に帰属します。内容に関する問い合わせは PLATEAU 公式サイトまで。" data-en="This site renders UML models published by MLIT Project PLATEAU in a browser-friendly form using Metanorma / LutaML. Copyright and licensing of the underlying models remain with their original authors; for content inquiries, see the official PLATEAU site.">本サイトは MLIT Project PLATEAU が公開する UML モデルを、Metanorma / LutaML によってブラウザで閲覧できるよう整形したものです。モデルの著作権・ライセンスは原著作者に帰属します。内容に関する問い合わせは PLATEAU 公式サイトまで。</span>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <div>
+        <span data-ja="Project PLATEAU · 国土交通省 (MLIT Japan)" data-en="Project PLATEAU · MLIT Japan">Project PLATEAU · 国土交通省 (MLIT Japan)</span>
+      </div>
+      <nav class="site-footer__links" aria-label="Footer">
+        <a href="https://www.mlit.go.jp/plateau/">PLATEAU 公式 / Official</a>
+        <a href="https://www.mlit.go.jp/plateau/libraries/handbooks/">Handbooks</a>
+        <a href="https://github.com/metanorma/plateau-model">GitHub</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var STORAGE_LANG = "plateau-model:lang";
+      var STORAGE_THEME = "plateau-model:theme";
+      var root = document.documentElement;
+
+      function applyLang(lang) {
+        root.setAttribute("data-lang", lang);
+        root.setAttribute("lang", lang === "ja" ? "ja" : "en");
+        var buttons = document.querySelectorAll("[data-lang-target]");
+        buttons.forEach(function (btn) {
+          btn.setAttribute("aria-pressed", String(btn.getAttribute("data-lang-target") === lang));
+        });
+        try { localStorage.setItem(STORAGE_LANG, lang); } catch (e) {}
+      }
+
+      function pickInitialLang() {
+        try {
+          var saved = localStorage.getItem(STORAGE_LANG);
+          if (saved === "ja" || saved === "en") return saved;
+        } catch (e) {}
+        var nav = (navigator.language || navigator.userLanguage || "ja").toLowerCase();
+        return nav.indexOf("ja") === 0 ? "ja" : "en";
+      }
+
+      function applyTheme(theme) {
+        root.setAttribute("data-theme", theme);
+        try { localStorage.setItem(STORAGE_THEME, theme); } catch (e) {}
+      }
+
+      function pickInitialTheme() {
+        try {
+          var saved = localStorage.getItem(STORAGE_THEME);
+          if (saved === "light" || saved === "dark") return saved;
+        } catch (e) {}
+        return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+
+      applyLang(pickInitialLang());
+      applyTheme(pickInitialTheme());
+
+      document.querySelectorAll("[data-lang-target]").forEach(function (btn) {
+        btn.addEventListener("click", function () { applyLang(btn.getAttribute("data-lang-target")); });
+      });
+
+      var themeToggle = document.querySelector("[data-theme-toggle]");
+      if (themeToggle) {
+        themeToggle.addEventListener("click", function () {
+          var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+          applyTheme(next);
+        });
+      }
+    })();
+  </script>
+
+</body>
+</html>

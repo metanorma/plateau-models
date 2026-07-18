@@ -1,9 +1,17 @@
 # PLATEAU Model
 
-This repository contains the PLATEAU v5.1 UML model and generates a browser-based visualization using LutaML.
+This repository hosts the PLATEAU 3D City Model UML specifications and publishes an interactive browser-based visualization for each, built with [LutaML](https://lutaml.com) and the [`ea`](https://github.com/lutaml/ea) gem.
 
-The site can be accessed at:
-* [Project PLATEAU UML models site](https://metanorma.github.io/plateau-model)
+Live site: <https://metanorma.github.io/plateau-model>
+
+The site offers **two side-by-side UML model specifications**, bilingual (Japanese / English):
+
+| Directory | Specification | Status | Source |
+| --- | --- | --- | --- |
+| `/citygml-2/` | PLATEAU v5.1 (CityGML 2.0) | Production | `20251010_current_plateau_v5.1.qea` |
+| `/citygml-3/` | PLATEAU CityGML 3.0 Consolidated Draft | Draft | `20260323_CityGML_3.0_Consolidated_Draft.qea` |
+
+The root `index.html` is a hand-authored landing page (committed); each subdirectory contains a generated SPA.
 
 ## Prerequisites
 
@@ -12,45 +20,43 @@ The site can be accessed at:
 
 ## Setup
 
-1. Install Bundler (if not already installed):
-   ```bash
-   gem install bundler
-   ```
-
-2. Install dependencies:
-   ```bash
-   bundle install
-   ```
-
-## Generate the Web Page
-
-To generate the `index.html` file from the QEA model:
-
 ```bash
+gem install bundler     # if not already installed
 bundle install
-bundle exec ea spa 20251010_current_plateau_v5.1.qea -o index.html
 ```
 
-This will create a single-page application (SPA) that can be opened in any web browser to visualize the UML model.
+## Generate the SPAs locally
 
-## GitHub Pages Deployment
+Each QEA file produces a self-contained HTML SPA into its own subdirectory:
 
-The repository is configured to automatically deploy the generated page to GitHub Pages via GitHub Actions:
+```bash
+# CityGML 2.0 — PLATEAU v5.1 (current production model)
+mkdir -p citygml-2
+bundle exec ea spa 20251010_current_plateau_v5.1.qea -o citygml-2/index.html
 
-- The workflow is triggered on pushes to the `main` branch
-- It can also be manually triggered via the Actions tab
-- The generated page will be available at the GitHub Pages URL for this repository
+# CityGML 3.0 — Consolidated Draft (next-generation model)
+mkdir -p citygml-3
+bundle exec ea spa 20260323_CityGML_3.0_Consolidated_Draft.qea -o citygml-3/index.html
+```
 
-### Manual Workflow Trigger
+Open `index.html` (the landing page) in any browser to choose a model.
 
-You can manually trigger the deployment workflow:
-1. Go to the "Actions" tab in the GitHub repository
-2. Select the "Deploy to GitHub Pages" workflow
-3. Click "Run workflow" and select the branch
+## GitHub Pages deployment
+
+The repository auto-deploys to GitHub Pages via `.github/workflows/deploy-pages.yml`:
+
+- Triggered on push to `main` (and the `migrate/new-lutaml-spa` branch during the migration window).
+- The workflow regenerates both SPAs from their QEA sources and uploads the entire repository (landing page + SPA subdirectories) as the Pages artifact.
+- Can also be run manually via the Actions tab.
 
 ## Files
 
-- `20251010_current_plateau_v5.1.qea` - The source UML model file in Enterprise Architect format
-- `Gemfile` - Ruby dependencies specification
-- `browser.html` - Generated visualization (created by the build process)
-- `.github/workflows/deploy-pages.yml` - GitHub Actions workflow for automated deployment
+| Path | Purpose |
+| --- | --- |
+| `index.html` | Hand-authored bilingual landing page (committed) |
+| `20251010_current_plateau_v5.1.qea` | CityGML 2.0 source UML model (Enterprise Architect) |
+| `20260323_CityGML_3.0_Consolidated_Draft.qea` | CityGML 3.0 source UML model (Enterprise Architect) |
+| `citygml-2/index.html` | Generated CityGML 2.0 SPA (gitignored) |
+| `citygml-3/index.html` | Generated CityGML 3.0 SPA (gitignored) |
+| `Gemfile` | Ruby dependencies (`ea`, `lutaml-uml`) |
+| `.github/workflows/deploy-pages.yml` | GitHub Actions workflow |
