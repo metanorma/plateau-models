@@ -286,7 +286,12 @@
       .hero { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 40px; padding: 56px 28px 56px; }
     }
     @media (max-width: 920px) {
-      .hero { grid-template-columns: 1fr; gap: 28px; padding: 48px 20px 40px; }
+      /* On phones the wireframe can't earn its keep — the canvas
+         either overlaps the text or shrinks below legibility.
+         Drop it and let the hero be type-only until there's room
+         for the scene to breathe. */
+      .hero { grid-template-columns: 1fr; gap: 0; padding: 48px 20px 40px; }
+      .hero__art { display: none; }
     }
 
     .hero__copy { min-width: 0; }
@@ -1310,14 +1315,20 @@
     // perspective distortion, which is what makes architectural
     // drawings readable. Frustum is sized in resize(); FRUSTUM is
     // the half-height in world units (so the visible vertical
-    // extent is 2 × FRUSTUM).
-    const FRUSTUM = 22;
+    // extent is 2 × FRUSTUM). Tight value (16) zooms in on the
+    // district so the buildings read large in the canvas instead
+    // of being lost in negative space.
+    const FRUSTUM = 16;
     const camera = new THREE.OrthographicCamera(-FRUSTUM, FRUSTUM, FRUSTUM, -FRUSTUM, 1, 250);
 
-    // Classic iso position (1, 1/√2, 1) direction — high enough to
-    // see tower tops, low enough to read roof forms.
-    const CAM_BASE = new THREE.Vector3(34, 26, 34);
-    const CAM_TARGET = new THREE.Vector3(0, 4, 0);
+    // Camera angle kept near true iso (~30° elevation). Target y=14
+    // lifts the framing so the tallest tower (top at y≈40 incl.
+    // antenna) stays inside the top of the frame instead of being
+    // clipped. Horizontal distance 34 → vertical offset 16 →
+    // angle ≈ atan(16/34) ≈ 25°, a touch gentler than textbook iso
+    // but good for showing roof forms.
+    const CAM_BASE = new THREE.Vector3(24, 30, 24);
+    const CAM_TARGET = new THREE.Vector3(0, 14, 0);
     camera.position.copy(CAM_BASE);
     camera.lookAt(CAM_TARGET);
 
