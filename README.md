@@ -2,7 +2,7 @@
 
 This repository hosts the PLATEAU 3D City Model UML specifications and publishes an interactive browser-based visualization for each, built with [LutaML](https://lutaml.com) and the [`ea`](https://github.com/lutaml/ea) gem.
 
-Live site: <https://metanorma.github.io/plateau-model>
+Live site: <https://metanorma.github.io/plateau-models>
 
 The site offers **two side-by-side UML model specifications**, bilingual (Japanese / English):
 

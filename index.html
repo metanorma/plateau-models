@@ -10,7 +10,7 @@
   <meta property="og:title" content="PLATEAU by MLIT · 3D City Model UML Browser">
   <meta property="og:description" content="Interactive UML browser for the PLATEAU 3D City Model — CityGML 2.0 and 3.0.">
   <meta property="og:type" content="website">
-  <link rel="canonical" href="https://metanorma.github.io/plateau-model/">
+  <link rel="canonical" href="https://metanorma.github.io/plateau-models/">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -275,24 +275,68 @@
       position: relative;
       max-width: var(--max-w);
       margin: 0 auto;
-      padding: 80px 28px 56px;
-      overflow: hidden;
+      padding: 72px 28px 56px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      gap: 48px;
+      align-items: center;
     }
-    .hero__bg {
+    @media (max-width: 960px) {
+      .hero { grid-template-columns: 1fr; gap: 32px; padding: 56px 28px 40px; }
+    }
+
+    .hero__copy { min-width: 0; }
+
+    .hero__art {
+      position: relative;
+      aspect-ratio: 5 / 4;
+      width: 100%;
+      max-width: 560px;
+      margin-left: auto;
+    }
+    .hero__art svg {
       position: absolute;
       inset: 0;
-      pointer-events: none;
-      z-index: -1;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
     }
-    .hero__bg svg {
-      position: absolute;
-      top: -120px;
-      right: -80px;
-      width: 560px;
-      height: 560px;
-      opacity: 0.6;
-    }
-    html[data-theme="dark"] .hero__bg svg { opacity: 0.35; }
+    /* Wireframe line style — the cityscape is drawn entirely with thin
+       strokes in the PLATEAU brand palette. Subtle fills give just
+       enough depth to read as 3D rather than flat. */
+    .wf-grid line { stroke: var(--brand-purple); stroke-opacity: 0.18; stroke-width: 0.5; }
+    .wf-axis      { stroke: var(--brand-purple); stroke-opacity: 0.32; stroke-width: 0.8; stroke-dasharray: 3 3; }
+    .wf-edge      { stroke: var(--brand-purple); stroke-width: 1.1; stroke-linejoin: round; stroke-linecap: round; fill: none; }
+    .wf-edge-soft { stroke: var(--brand-purple); stroke-opacity: 0.55; stroke-width: 0.8; fill: none; stroke-linejoin: round; }
+    .wf-roof      { fill: var(--brand-purple); fill-opacity: 0.06; stroke: var(--brand-purple); stroke-width: 1.1; stroke-linejoin: round; }
+    .wf-face      { fill: var(--brand-purple); fill-opacity: 0.03; stroke: none; }
+    .wf-window    { stroke: var(--brand-teal); stroke-opacity: 0.55; stroke-width: 0.6; fill: none; }
+    .wf-accent    { stroke: var(--brand-teal); stroke-width: 1.2; fill: none; stroke-linejoin: round; stroke-linecap: round; }
+    .wf-accent-fill { fill: var(--brand-teal); fill-opacity: 0.1; stroke: var(--brand-teal); stroke-width: 1.1; stroke-linejoin: round; }
+    .wf-label-rect  { fill: var(--surface); stroke: var(--brand-purple); stroke-width: 0.8; }
+    .wf-label-line   { stroke: var(--brand-purple); stroke-opacity: 0.55; stroke-width: 0.6; stroke-dasharray: 2 2; }
+    .wf-label-text   { font-family: var(--font-mono); font-size: 8px; fill: var(--text-secondary); letter-spacing: 0.06em; text-transform: uppercase; }
+    .wf-label-text-jp { font-family: var(--font-jp); font-size: 8px; fill: var(--text-muted); }
+    html[data-theme="dark"] .wf-grid line  { stroke-opacity: 0.22; }
+    html[data-theme="dark"] .wf-edge       { stroke: #C9C2D9; }
+    html[data-theme="dark"] .wf-edge-soft  { stroke: #C9C2D9; stroke-opacity: 0.4; }
+    html[data-theme="dark"] .wf-roof       { fill-opacity: 0.1; stroke: #C9C2D9; }
+    html[data-theme="dark"] .wf-window     { stroke-opacity: 0.6; }
+    html[data-theme="dark"] .wf-label-rect { fill: var(--surface-raised); stroke: #C9C2D9; }
+    html[data-theme="dark"] .wf-label-text { fill: var(--text-secondary); }
+
+    /* Stagger the wireframe reveal — each building group fades up
+       after the previous so the cityscape "assembles" on load. */
+    .wf-group { transform-origin: center bottom; opacity: 0; transform: translateY(8px); animation: wfRise 0.7s var(--ease) forwards; }
+    .wf-group--grid  { animation-delay: 0.10s; }
+    .wf-group--b1    { animation-delay: 0.25s; }
+    .wf-group--b2    { animation-delay: 0.35s; }
+    .wf-group--b3    { animation-delay: 0.45s; }
+    .wf-group--b4    { animation-delay: 0.55s; }
+    .wf-group--b5    { animation-delay: 0.65s; }
+    .wf-group--b6    { animation-delay: 0.75s; }
+    .wf-group--lbl   { animation-delay: 0.95s; }
+    @keyframes wfRise { to { opacity: 1; transform: translateY(0); } }
 
     .eyebrow {
       display: inline-flex;
@@ -322,19 +366,19 @@
 
     .hero__title {
       font-family: var(--font-display);
-      font-size: clamp(40px, 6.5vw, 76px);
+      font-size: clamp(38px, 5.8vw, 68px);
       font-weight: 700;
-      line-height: 1.02;
+      line-height: 1.04;
       letter-spacing: -0.035em;
       margin-bottom: 28px;
       color: var(--text-primary);
-      max-width: 880px;
     }
     .hero__title em {
       font-style: normal;
       color: var(--brand-purple);
       position: relative;
       display: inline-block;
+      white-space: nowrap;
     }
     html[data-theme="dark"] .hero__title em { color: var(--brand-teal); }
     .hero__title em::after {
@@ -351,27 +395,27 @@
     .hero__title-jp {
       display: block;
       font-family: var(--font-jp);
-      font-size: clamp(18px, 2vw, 22px);
+      font-size: clamp(17px, 1.8vw, 21px);
       font-weight: 500;
       letter-spacing: 0.04em;
       color: var(--text-secondary);
-      margin-top: 16px;
+      margin-top: 14px;
       line-height: 1.45;
     }
 
     .hero__lede {
-      font-size: 17px;
+      font-size: 16px;
       line-height: 1.65;
-      max-width: var(--max-w-prose);
+      max-width: 540px;
       color: var(--text-secondary);
-      margin-bottom: 40px;
+      margin-bottom: 36px;
     }
 
     .hero__meta {
       display: flex;
       flex-wrap: wrap;
-      gap: 32px 40px;
-      padding-top: 28px;
+      gap: 28px 36px;
+      padding-top: 24px;
       border-top: 1px solid var(--border-hair);
     }
     .hero__meta-item {
@@ -778,7 +822,7 @@
       .section__head { flex-direction: column; align-items: flex-start; gap: 8px; }
       .footer { padding: 40px 20px 28px; }
       .notes { grid-template-columns: 1fr; padding: 20px; }
-      .hero__bg svg { width: 380px; height: 380px; top: -80px; right: -120px; }
+      .hero__art { max-width: 420px; }
     }
   </style>
 </head>
@@ -842,54 +886,207 @@
          Hero
          ========================================================= -->
     <section class="hero">
-      <div class="hero__bg" aria-hidden="true">
-        <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="heroFade" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#463C64" stop-opacity="0.18"/>
-              <stop offset="100%" stop-color="#00BEBE" stop-opacity="0.08"/>
-            </linearGradient>
-          </defs>
-          <polygon points="200,40 360,140 320,300 160,360 60,220 120,80" fill="url(#heroFade)" stroke="#463C64" stroke-opacity="0.18" stroke-width="1"/>
-          <polygon points="200,90 310,160 280,280 180,320 110,230 150,130" fill="none" stroke="#00BEBE" stroke-opacity="0.25" stroke-width="1"/>
-          <polygon points="200,130 270,180 250,250 200,280 150,230 170,170" fill="#463C64" fill-opacity="0.06" stroke="#463C64" stroke-opacity="0.3" stroke-width="1"/>
-        </svg>
+      <div class="hero__copy">
+        <span class="eyebrow reveal reveal--1">
+          <span class="eyebrow__dot" aria-hidden="true"></span>
+          <span data-i18n data-ja="国土交通省 Project PLATEAU 公式データ" data-en="MLIT Japan · Project PLATEAU">国土交通省 Project PLATEAU 公式データ</span>
+        </span>
+
+        <h1 class="hero__title reveal reveal--2">
+          <span data-i18n data-ja="3D都市モデルを、" data-en="The 3D City Model, ">3D都市モデルを、</span><em data-i18n data-ja="UML で読み解く。" data-en="in UML.">UML で読み解く。</em>
+          <span class="hero__title-jp reveal reveal--3" data-i18n data-ja="Project PLATEAU のモデル仕様を、誰でもブラウザで。" data-en="Project PLATEAU's model specifications, browsable by anyone, in any browser.">Project PLATEAU のモデル仕様を、誰でもブラウザで。</span>
+        </h1>
+
+        <p class="hero__lede reveal reveal--4" data-i18n
+           data-ja="PLATEAU が定義する 3D都市モデルの UML 仕様を、パッケージ階層・クラス詳細・関連・図までインタラクティブに探索できるポータルです。CityGML 2.0 に基づく現行運用モデルと、CityGML 3.0 に基づく次世代ドラフトを並べて提供します。"
+           data-en="A portal to interactively explore the PLATEAU 3D City Model UML specifications — package hierarchies, class details, associations, and diagrams. Browse the CityGML 2.0 production model and the CityGML 3.0 next-generation draft side by side.">
+           PLATEAU が定義する 3D都市モデルの UML 仕様を、パッケージ階層・クラス詳細・関連・図までインタラクティブに探索できるポータルです。CityGML 2.0 に基づく現行運用モデルと、CityGML 3.0 に基づく次世代ドラフトを並べて提供します。
+        </p>
+
+        <div class="hero__meta reveal reveal--5">
+          <div class="hero__meta-item">
+            <span class="hero__meta-label" data-i18n data-ja="提供元" data-en="Provider">提供元</span>
+            <span class="hero__meta-value">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg>
+              <span>MLIT Japan — 国土交通省</span>
+            </span>
+          </div>
+          <div class="hero__meta-item">
+            <span class="hero__meta-label" data-i18n data-ja="対象規格" data-en="Schema">対象規格</span>
+            <span class="hero__meta-value">CityGML 2.0 / 3.0</span>
+          </div>
+          <div class="hero__meta-item">
+            <span class="hero__meta-label" data-i18n data-ja="公式サイト" data-en="Official site">公式サイト</span>
+            <span class="hero__meta-value">
+              <a href="https://www.mlit.go.jp/plateau/" rel="noopener" data-i18n data-ja="mlit.go.jp/plateau" data-en="mlit.go.jp/plateau">mlit.go.jp/plateau</a>
+            </span>
+          </div>
+        </div>
       </div>
 
-      <span class="eyebrow reveal reveal--1">
-        <span class="eyebrow__dot" aria-hidden="true"></span>
-        <span data-i18n data-ja="国土交通省 Project PLATEAU 公式データ" data-en="MLIT Japan · Project PLATEAU">国土交通省 Project PLATEAU 公式データ</span>
-      </span>
+      <!--
+        Isometric wireframe cityscape — buildings + a domed public
+        facility + a park block, drawn entirely with thin PLATEAU-brand
+        strokes so it reads as a 3D-model schematic rather than a
+        rendered illustration. The grid floor ties back to the
+        "model / spec" framing of the rest of the page.
+      -->
+      <div class="hero__art reveal reveal--3" aria-hidden="true">
+        <svg viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+          <!-- Iso ground grid (origin near center-bottom) -->
+          <g class="wf-group wf-group--grid">
+            <g class="wf-grid">
+              <!-- X-axis lines (going right-down) -->
+              <line x1="60"  y1="240" x2="250" y2="350"/>
+              <line x1="100" y1="220" x2="290" y2="330"/>
+              <line x1="140" y1="200" x2="330" y2="310"/>
+              <line x1="180" y1="180" x2="370" y2="290"/>
+              <line x1="220" y1="160" x2="410" y2="270"/>
+              <!-- Y-axis lines (going right-up) -->
+              <line x1="60"  y1="240" x2="250" y2="130"/>
+              <line x1="100" y1="260" x2="290" y2="150"/>
+              <line x1="140" y1="280" x2="330" y2="170"/>
+              <line x1="180" y1="300" x2="370" y2="190"/>
+              <line x1="220" y1="320" x2="410" y2="210"/>
+            </g>
+            <!-- Origin axes -->
+            <line class="wf-axis" x1="60" y1="240" x2="450" y2="240"/>
+            <line class="wf-axis" x1="250" y1="350" x2="250" y2="50"/>
+          </g>
 
-      <h1 class="hero__title reveal reveal--2">
-        <span data-i18n data-ja="3D都市モデルを、" data-en="The 3D City Model,">3D都市モデルを、</span><em data-i18n data-ja="UML で読み解く。" data-en="in UML.">UML で読み解く。</em>
-        <span class="hero__title-jp reveal reveal--3" data-i18n data-ja="Project PLATEAU のモデル仕様を、誰でもブラウザで。" data-en="Project PLATEAU's model specifications, browsable by anyone, in any browser.">Project PLATEAU のモデル仕様を、誰でもブラウザで。</span>
-      </h1>
+          <!-- Building 1: tall office tower (back-left, mid footprint, tall) -->
+          <g class="wf-group wf-group--b1">
+            <!-- footprint -->
+            <polygon class="wf-edge-soft" points="130,232 170,212 210,232 170,252"/>
+            <!-- left face -->
+            <polygon class="wf-face" points="130,232 170,212 170,108 130,128"/>
+            <polygon class="wf-edge" points="130,232 170,212 170,108 130,128"/>
+            <!-- right face -->
+            <polygon class="wf-face" points="170,212 210,232 210,128 170,108"/>
+            <polygon class="wf-edge" points="170,212 210,232 210,128 170,108"/>
+            <!-- roof -->
+            <polygon class="wf-roof" points="130,128 170,108 210,128 170,148"/>
+            <!-- floor lines -->
+            <line class="wf-window" x1="130" y1="158" x2="170" y2="138"/>
+            <line class="wf-window" x1="130" y1="178" x2="170" y2="158"/>
+            <line class="wf-window" x1="130" y1="198" x2="170" y2="178"/>
+            <line class="wf-window" x1="130" y1="218" x2="170" y2="198"/>
+            <line class="wf-window" x1="170" y1="138" x2="210" y2="158"/>
+            <line class="wf-window" x1="170" y1="158" x2="210" y2="178"/>
+            <line class="wf-window" x1="170" y1="178" x2="210" y2="198"/>
+            <line class="wf-window" x1="170" y1="198" x2="210" y2="218"/>
+          </g>
 
-      <p class="hero__lede reveal reveal--4" data-i18n
-         data-ja="PLATEAU が定義する 3D都市モデルの UML 仕様を、パッケージ階層・クラス詳細・関連・図までインタラクティブに探索できるポータルです。CityGML 2.0 に基づく現行運用モデルと、CityGML 3.0 に基づく次世代ドラフトを並べて提供します。"
-         data-en="A portal to interactively explore the PLATEAU 3D City Model UML specifications — package hierarchies, class details, associations, and diagrams. Browse the CityGML 2.0 production model and the CityGML 3.0 next-generation draft side by side.">
-         PLATEAU が定義する 3D都市モデルの UML 仕様を、パッケージ階層・クラス詳細・関連・図までインタラクティブに探索できるポータルです。CityGML 2.0 に基づく現行運用モデルと、CityGML 3.0 に基づく次世代ドラフトを並べて提供します。
-      </p>
+          <!-- Building 2: medium residential (back-right) -->
+          <g class="wf-group wf-group--b2">
+            <polygon class="wf-edge-soft" points="230,212 270,192 310,212 270,232"/>
+            <polygon class="wf-face" points="230,212 270,192 270,132 230,152"/>
+            <polygon class="wf-edge" points="230,212 270,192 270,132 230,152"/>
+            <polygon class="wf-face" points="270,192 310,212 310,152 270,132"/>
+            <polygon class="wf-edge" points="270,192 310,212 310,152 270,132"/>
+            <!-- pitched roof -->
+            <polygon class="wf-roof" points="230,152 270,112 310,152 270,132"/>
+            <line class="wf-edge" x1="270" y1="112" x2="270" y2="132"/>
+            <!-- window grid -->
+            <line class="wf-window" x1="230" y1="172" x2="270" y2="152"/>
+            <line class="wf-window" x1="230" y1="192" x2="270" y2="172"/>
+            <line class="wf-window" x1="240" y1="167" x2="240" y2="187"/>
+            <line class="wf-window" x1="260" y1="157" x2="260" y2="177"/>
+            <line class="wf-window" x1="270" y1="152" x2="310" y2="172"/>
+            <line class="wf-window" x1="270" y1="172" x2="310" y2="192"/>
+          </g>
 
-      <div class="hero__meta reveal reveal--5">
-        <div class="hero__meta-item">
-          <span class="hero__meta-label" data-i18n data-ja="提供元" data-en="Provider">提供元</span>
-          <span class="hero__meta-value">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg>
-            <span>MLIT Japan — 国土交通省</span>
-          </span>
-        </div>
-        <div class="hero__meta-item">
-          <span class="hero__meta-label" data-i18n data-ja="対象規格" data-en="Schema">対象規格</span>
-          <span class="hero__meta-value">CityGML 2.0 / 3.0</span>
-        </div>
-        <div class="hero__meta-item">
-          <span class="hero__meta-label" data-i18n data-ja="公式サイト" data-en="Official site">公式サイト</span>
-          <span class="hero__meta-value">
-            <a href="https://www.mlit.go.jp/plateau/" rel="noopener" data-i18n data-ja="mlit.go.jp/plateau" data-en="mlit.go.jp/plateau">mlit.go.jp/plateau</a>
-          </span>
-        </div>
+          <!-- Building 3: short block (front-left) -->
+          <g class="wf-group wf-group--b3">
+            <polygon class="wf-edge-soft" points="90,288 130,268 170,288 130,308"/>
+            <polygon class="wf-face" points="90,288 130,268 130,228 90,248"/>
+            <polygon class="wf-edge" points="90,288 130,268 130,228 90,248"/>
+            <polygon class="wf-face" points="130,268 170,288 170,248 130,228"/>
+            <polygon class="wf-edge" points="130,268 170,288 170,248 130,228"/>
+            <polygon class="wf-roof" points="90,248 130,228 170,248 130,268"/>
+            <line class="wf-window" x1="90"  y1="268" x2="130" y2="248"/>
+            <line class="wf-window" x1="110" y1="258" x2="110" y2="278"/>
+            <line class="wf-window" x1="130" y1="248" x2="170" y2="268"/>
+            <line class="wf-window" x1="150" y1="258" x2="150" y2="278"/>
+          </g>
+
+          <!-- Public facility: domed structure (front-center) —
+               civic / cultural typology, drawn with the teal accent
+               stroke so it reads as a distinct landmark. -->
+          <g class="wf-group wf-group--b4">
+            <polygon class="wf-edge-soft" points="190,288 230,268 270,288 230,308"/>
+            <!-- drum base -->
+            <polygon class="wf-face" points="190,288 230,268 230,238 190,258"/>
+            <polygon class="wf-accent" points="190,288 230,268 230,238 190,258"/>
+            <polygon class="wf-face" points="230,268 270,288 270,258 230,238"/>
+            <polygon class="wf-accent" points="230,268 270,288 270,258 230,238"/>
+            <!-- dome -->
+            <path class="wf-accent-fill" d="M 190 258 Q 230 188 270 258 Z"/>
+            <line class="wf-accent" x1="230" y1="208" x2="230" y2="188"/>
+            <circle class="wf-accent" cx="230" cy="184" r="3"/>
+            <!-- columns -->
+            <line class="wf-window" x1="200" y1="265" x2="200" y2="285"/>
+            <line class="wf-window" x1="215" y1="257" x2="215" y2="277"/>
+            <line class="wf-window" x1="245" y1="257" x2="245" y2="277"/>
+            <line class="wf-window" x1="260" y1="265" x2="260" y2="285"/>
+          </g>
+
+          <!-- Park / open space (front-right) — low plinth with a
+               single tree silhouette, also teal to mark it as a
+               different land-use class. -->
+          <g class="wf-group wf-group--b5">
+            <polygon class="wf-edge-soft" points="290,288 330,268 370,288 330,308"/>
+            <polygon class="wf-face" points="290,288 330,268 330,258 290,278"/>
+            <polygon class="wf-accent" points="290,288 330,268 330,258 290,278"/>
+            <polygon class="wf-face" points="330,268 370,288 370,278 330,258"/>
+            <polygon class="wf-accent" points="330,268 370,288 370,278 330,258"/>
+            <!-- tree canopy -->
+            <circle class="wf-accent-fill" cx="320" cy="252" r="10"/>
+            <circle class="wf-accent-fill" cx="345" cy="258" r="7"/>
+            <!-- trunk hint -->
+            <line class="wf-accent" x1="320" y1="262" x2="320" y2="270"/>
+            <line class="wf-accent" x1="345" y1="265" x2="345" y2="272"/>
+          </g>
+
+          <!-- Building 6: slim tower (far back-right) -->
+          <g class="wf-group wf-group--b6">
+            <polygon class="wf-edge-soft" points="330,184 360,170 390,184 360,198"/>
+            <polygon class="wf-face" points="330,184 360,170 360,100 330,114"/>
+            <polygon class="wf-edge" points="330,184 360,170 360,100 330,114"/>
+            <polygon class="wf-face" points="360,170 390,184 390,114 360,100"/>
+            <polygon class="wf-edge" points="360,170 390,184 390,114 360,100"/>
+            <polygon class="wf-roof" points="330,114 360,100 390,114 360,128"/>
+            <line class="wf-window" x1="330" y1="134" x2="360" y2="120"/>
+            <line class="wf-window" x1="330" y1="154" x2="360" y2="140"/>
+            <line class="wf-window" x1="330" y1="174" x2="360" y2="160"/>
+            <line class="wf-window" x1="360" y1="120" x2="390" y2="134"/>
+            <line class="wf-window" x1="360" y1="140" x2="390" y2="154"/>
+            <line class="wf-window" x1="360" y1="160" x2="390" y2="174"/>
+            <!-- antenna -->
+            <line class="wf-edge" x1="360" y1="100" x2="360" y2="78"/>
+          </g>
+
+          <!-- Callout labels -->
+          <g class="wf-group wf-group--lbl">
+            <!-- Office tower label -->
+            <line class="wf-label-line" x1="170" y1="120" x2="170" y2="78"/>
+            <rect class="wf-label-rect" x="116" y="62" width="108" height="20" rx="2"/>
+            <text class="wf-label-text"     x="122" y="74">BUILDING</text>
+            <text class="wf-label-text-jp"  x="170" y="74">／建築物</text>
+
+            <!-- Public facility label -->
+            <line class="wf-label-line" x1="230" y1="288" x2="230" y2="352"/>
+            <rect class="wf-label-rect" x="156" y="352" width="148" height="20" rx="2"/>
+            <text class="wf-label-text"     x="162" y="364">PUBLIC FACILITY</text>
+            <text class="wf-label-text-jp"  x="244" y="364">／公共施設</text>
+
+            <!-- Park label -->
+            <line class="wf-label-line" x1="330" y1="262" x2="402" y2="262"/>
+            <rect class="wf-label-rect" x="402" y="252" width="68" height="20" rx="2"/>
+            <text class="wf-label-text"     x="408" y="264">PARK</text>
+            <text class="wf-label-text-jp"  x="438" y="264">／公園</text>
+          </g>
+        </svg>
       </div>
     </section>
 
@@ -1074,7 +1271,7 @@
           Handbooks / ハンドブック
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17L17 7M7 7h10v10"/></svg>
         </a>
-        <a href="https://github.com/metanorma/plateau-model">
+        <a href="https://github.com/metanorma/plateau-models">
           GitHub
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17L17 7M7 7h10v10"/></svg>
         </a>

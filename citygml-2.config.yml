@@ -8,7 +8,7 @@ metadata:
   version: "5.1"
   license: "PLATEAU license"
   homepage: "https://www.mlit.go.jp/plateau/"
-  repository: "https://github.com/metanorma/plateau-model"
+  repository: "https://github.com/metanorma/plateau-models"
   authors:
     - name: "Ministry of Land, Infrastructure, Transport and Tourism (MLIT Japan)"
   tags:
@@ -23,7 +23,7 @@ metadata:
     - name: "Project PLATEAU"
       url: "https://www.mlit.go.jp/plateau/"
     - name: "PLATEAU Model Portal"
-      url: "https://metanorma.github.io/plateau-model/"
+      url: "https://metanorma.github.io/plateau-models/"
 
   appearance:
     logos:
