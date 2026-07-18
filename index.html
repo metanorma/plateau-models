@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n data-ja="PLATEAU Model｜3D都市モデル UML仕様ブラウザ" data-en="PLATEAU Model · 3D City Model UML Browser">PLATEAU Model｜3D都市モデル UML仕様ブラウザ</title>
+  <title data-i18n data-ja="PLATEAU by MLIT｜3D都市モデル UMLモデル" data-en="PLATEAU by MLIT · 3D City Model UML Browser">PLATEAU by MLIT｜3D都市モデル UMLモデル</title>
   <meta name="description" data-i18n data-ja="国土交通省 Project PLATEAU の 3D都市モデル UML仕様をインタラクティブに閲覧するためのポータル。CityGML 2.0（現行運用モデル）と CityGML 3.0（次世代ドラフト）を提供します。" data-en="Portal to interactively browse the PLATEAU 3D City Model UML specifications from MLIT Japan. Provides both CityGML 2.0 (production) and CityGML 3.0 (next-generation draft).">
-  <meta name="generator" content="PLATEAU Model Portal">
+  <meta name="generator" content="PLATEAU by MLIT — UML Model Portal">
   <meta name="theme-color" content="#463C64">
-  <meta property="og:title" content="PLATEAU Model · 3D City Model UML Browser">
+  <meta property="og:title" content="PLATEAU by MLIT · 3D City Model UML Browser">
   <meta property="og:description" content="Interactive UML browser for the PLATEAU 3D City Model — CityGML 2.0 and 3.0.">
   <meta property="og:type" content="website">
   <link rel="canonical" href="https://metanorma.github.io/plateau-model/">
@@ -20,7 +20,7 @@
 
   <style>
     /* ============================================================
-       PLATEAU Model Portal — design system
+       PLATEAU by MLIT — UML Model Portal · design system
        Brand tokens are taken verbatim from mlit.go.jp/plateau's
        compiled CSS + SVG logo so the portal inherits the same
        visual identity as the official PLATEAU properties.
@@ -166,28 +166,37 @@
       align-items: center;
       gap: 14px;
     }
-    .brand-mark {
-      width: 36px;
-      height: 36px;
-      flex-shrink: 0;
+    /* Official PLATEAU logo lockup (mark + "PLATEAU" wordmark + "by MLIT"
+       tagline). Paths copied verbatim from
+       https://www.mlit.go.jp/plateau/assets/img/common/logo.svg ; the
+       mark paths retain their brand fills (#463C64 / #00BEBE) and the
+       wordmark/tagline paths use currentColor so the text flips between
+       black (light theme) and white (dark theme). */
+    .brand-logo {
       display: block;
+      height: 32px;
+      width: auto;
+      color: var(--text-primary);
+      flex-shrink: 0;
     }
-    .brand-mark .layer-a { fill: var(--brand-purple); }
-    .brand-mark .layer-b { fill: var(--brand-teal); }
-    .brand-mark .layer-c { fill: var(--brand-purple); }
-    html[data-theme="dark"] .brand-mark .layer-a { fill: var(--brand-purple); }
-    html[data-theme="dark"] .brand-mark .layer-c { fill: #6A5F8E; }
+    html[data-theme="dark"] .brand-logo { color: #FFFFFF; }
+    .brand-logo__mark-a { fill: #463C64; }
+    .brand-logo__mark-b { fill: #00BEBE; }
+    html[data-theme="dark"] .brand-logo__mark-a { fill: #6A5F8E; }
+    .brand-logo__text { fill: currentColor; }
 
     .brand-text {
       display: flex;
       flex-direction: column;
       gap: 1px;
       letter-spacing: 0.02em;
+      padding-left: 14px;
+      border-left: 1px solid var(--border-strong);
     }
     .brand-text__title {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--text-primary);
       line-height: 1.1;
@@ -661,15 +670,19 @@
     @media (max-width: 720px) {
       .footer__inner { grid-template-columns: 1fr; gap: 32px; }
     }
-    .footer__mark {
-      width: 48px;
-      height: 48px;
-      margin-bottom: 20px;
+    /* Official PLATEAU logo lockup used in the footer dark band —
+       identical geometry to the topbar lockup; the dark-mode text fill
+       is the right default here since the footer is always dark. */
+    .footer__logo {
+      display: block;
+      height: 40px;
+      width: auto;
       color: #FFFFFF;
+      margin-bottom: 20px;
     }
-    .footer__mark .layer-a { fill: #FFFFFF; }
-    .footer__mark .layer-b { fill: var(--brand-teal); }
-    .footer__mark .layer-c { fill: #C9C2D9; }
+    .footer__logo .brand-logo__mark-a { fill: #FFFFFF; }
+    .footer__logo .brand-logo__mark-b { fill: var(--brand-teal); }
+    .footer__logo .brand-logo__text { fill: currentColor; }
     .footer__title {
       font-family: var(--font-display);
       font-size: 20px;
@@ -776,15 +789,32 @@
        ========================================================= -->
   <header class="topbar">
     <div class="topbar__inner">
-      <a href="/" class="brand-lockup" aria-label="PLATEAU Model">
-        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-          <path class="layer-a" d="M15.7 6.5L9.7 3 0 8.6v12.8L15.7 30V17.2L9.7 13.7V6.5z"/>
-          <path class="layer-b" d="M15.7 6.5v10.7l2.4-1.4 4.5-2.6V6.5L15.7 0v6.5z"/>
-          <path class="layer-c" d="M17.6 19.6V13l9.7-5.6v10.7l-4.5 2.6-2.4 1.4-2.8 1.6v6.3l8.5-4.9z"/>
+      <a href="/" class="brand-lockup" aria-label="PLATEAU by MLIT — UML Model Browser">
+        <svg class="brand-logo" viewBox="0 0 182 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+          <!-- Origami mark -->
+          <path class="brand-logo__mark-a" d="M13.4985 16.0628L10.434 14.2935L0 8.26953V23.8563L27.8242 39.9205V24.3338L22.2595 21.121L20.6615 20.1983L16.6945 17.908L13.4985 16.0628Z"/>
+          <path class="brand-logo__mark-b" d="M13.4981 0L0.413086 7.55475L10.2268 13.2207L13.4981 15.1093V0Z"/>
+          <path class="brand-logo__mark-b" d="M20.6619 19.2447V11.4513L27.4112 7.55475L14.3262 0V15.5868L16.8604 17.05L20.6619 19.2447Z"/>
+          <path class="brand-logo__mark-a" d="M27.824 23.3788V8.26953L21.4883 11.9273V19.7208L22.7555 20.4523L27.824 23.3788Z"/>
+          <!-- "PLATEAU" wordmark -->
+          <path class="brand-logo__text" d="M49.2028 11.4492C49.9918 11.4492 51.089 11.5262 52.013 12.1422C53.091 12.8545 53.6108 14.0865 53.6108 15.2607C53.6108 16.0112 53.418 17.1665 52.3595 18.071C51.3393 18.9372 50.1653 19.072 49.2218 19.072H48.3365V24.2885H46.373V11.4492H49.2028ZM48.3365 17.2625H49.2218C50.9158 17.2625 51.7243 16.4347 51.7243 15.2415C51.7243 14.5292 51.4355 13.2587 49.2028 13.2587H48.3365V17.2625Z"/>
+          <path class="brand-logo__text" d="M69.2418 11.4492V22.4405H73.0146V24.2885H67.2783V11.4492H69.2418Z"/>
+          <path class="brand-logo__text" d="M94.1315 21.19H88.6458L87.2405 24.289H85.123L91.5135 10.6992L97.5963 24.289H95.4788L94.1315 21.19ZM93.3425 19.342L91.4368 14.9917L89.454 19.342H93.3425Z"/>
+          <path class="brand-logo__text" d="M113.806 13.2972V24.2885H111.842V13.2972H108.897V11.4492H116.751V13.2972H113.806Z"/>
+          <path class="brand-logo__text" d="M137.348 13.297H132.228V16.5502H137.194V18.3982H132.228V22.4405H137.348V24.2885H130.265V11.4492H137.348V13.297Z"/>
+          <path class="brand-logo__text" d="M157.657 21.19H152.171L150.766 24.289H148.648L155.039 10.6992L161.122 24.289H159.004L157.657 21.19ZM156.868 19.342L154.962 14.9917L152.979 19.342H156.868Z"/>
+          <path class="brand-logo__text" d="M173.558 11.4492V19.1875C173.558 19.8805 173.577 20.7275 173.962 21.401C174.347 22.0555 175.213 22.729 176.349 22.729C177.485 22.729 178.351 22.0552 178.736 21.401C179.121 20.7272 179.14 19.8802 179.14 19.1875V11.4492H181.103V19.707C181.103 20.7272 180.892 21.9592 179.91 23.037C179.236 23.7685 178.101 24.5385 176.349 24.5385C174.597 24.5385 173.462 23.7685 172.788 23.037C171.806 21.959 171.595 20.7272 171.595 19.707V11.4492H173.558Z"/>
+          <!-- "by MLIT" tagline -->
+          <path class="brand-logo__text" d="M142.407 30.1641V32.4951C142.659 32.1521 143.037 32.0401 143.38 32.0401C143.807 32.0401 144.192 32.2011 144.465 32.4601C144.766 32.7471 144.955 33.1741 144.955 33.6923C144.955 34.1753 144.787 34.6233 144.465 34.9453C144.192 35.2253 143.856 35.3723 143.394 35.3723C142.841 35.3723 142.561 35.1133 142.407 34.8891V35.2673H141.399V30.1643H142.407V30.1641ZM142.568 33.1393C142.449 33.2653 142.344 33.4471 142.344 33.7133C142.344 33.9721 142.456 34.1613 142.575 34.2731C142.736 34.4271 142.96 34.5043 143.149 34.5043C143.324 34.5043 143.52 34.4343 143.674 34.2873C143.821 34.1471 143.919 33.9443 143.919 33.7133C143.919 33.4611 143.821 33.2583 143.674 33.1181C143.513 32.9643 143.338 32.9081 143.135 32.9081C142.918 32.9081 142.729 32.9711 142.568 33.1393Z"/>
+          <path class="brand-logo__text" d="M148.658 34.8675L147.167 32.1445H148.329L149.211 33.8385L150.072 32.1445H151.206L148.693 36.8695H147.559L148.658 34.8675Z"/>
+          <path class="brand-logo__text" d="M157.793 35.2667L158.542 30.5977H159.438L160.6 33.3907L161.762 30.5977H162.658L163.407 35.2667H162.329L161.958 32.4804L160.789 35.2667H160.41L159.241 32.4804L158.871 35.2667H157.793Z"/>
+          <path class="brand-logo__text" d="M168.09 30.5977V34.3564H169.539V35.2667H167.012V30.5977H168.09Z"/>
+          <path class="brand-logo__text" d="M174.327 30.5977V35.2667H173.249V30.5977H174.327Z"/>
+          <path class="brand-logo__text" d="M180.087 31.5077V35.2667H179.009V31.5077H177.994V30.5977H181.102V31.5077H180.087Z"/>
         </svg>
         <span class="brand-text">
-          <span class="brand-text__title">PLATEAU Model</span>
-          <span class="brand-text__sub" data-i18n data-ja="3D都市モデル UML仕様ブラウザ" data-en="3D City Model · UML Browser">3D都市モデル UML仕様ブラウザ</span>
+          <span class="brand-text__title" data-i18n data-ja="UML モデル" data-en="UML Models">UML モデル</span>
+          <span class="brand-text__sub" data-i18n data-ja="3D都市モデル仕様ブラウザ" data-en="3D City Model · UML Browser">3D都市モデル仕様ブラウザ</span>
         </span>
       </a>
 
@@ -1010,12 +1040,26 @@
   <footer class="footer">
     <div class="footer__inner">
       <div>
-        <svg class="footer__mark" viewBox="0 0 32 32" aria-hidden="true">
-          <path class="layer-a" d="M15.7 6.5L9.7 3 0 8.6v12.8L15.7 30V17.2L9.7 13.7V6.5z"/>
-          <path class="layer-b" d="M15.7 6.5v10.7l2.4-1.4 4.5-2.6V6.5L15.7 0v6.5z"/>
-          <path class="layer-c" d="M17.6 19.6V13l9.7-5.6v10.7l-4.5 2.6-2.4 1.4-2.8 1.6v6.3l8.5-4.9z"/>
+        <svg class="footer__logo brand-logo" viewBox="0 0 182 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+          <path class="brand-logo__mark-a" d="M13.4985 16.0628L10.434 14.2935L0 8.26953V23.8563L27.8242 39.9205V24.3338L22.2595 21.121L20.6615 20.1983L16.6945 17.908L13.4985 16.0628Z"/>
+          <path class="brand-logo__mark-b" d="M13.4981 0L0.413086 7.55475L10.2268 13.2207L13.4981 15.1093V0Z"/>
+          <path class="brand-logo__mark-b" d="M20.6619 19.2447V11.4513L27.4112 7.55475L14.3262 0V15.5868L16.8604 17.05L20.6619 19.2447Z"/>
+          <path class="brand-logo__mark-a" d="M27.824 23.3788V8.26953L21.4883 11.9273V19.7208L22.7555 20.4523L27.824 23.3788Z"/>
+          <path class="brand-logo__text" d="M49.2028 11.4492C49.9918 11.4492 51.089 11.5262 52.013 12.1422C53.091 12.8545 53.6108 14.0865 53.6108 15.2607C53.6108 16.0112 53.418 17.1665 52.3595 18.071C51.3393 18.9372 50.1653 19.072 49.2218 19.072H48.3365V24.2885H46.373V11.4492H49.2028ZM48.3365 17.2625H49.2218C50.9158 17.2625 51.7243 16.4347 51.7243 15.2415C51.7243 14.5292 51.4355 13.2587 49.2028 13.2587H48.3365V17.2625Z"/>
+          <path class="brand-logo__text" d="M69.2418 11.4492V22.4405H73.0146V24.2885H67.2783V11.4492H69.2418Z"/>
+          <path class="brand-logo__text" d="M94.1315 21.19H88.6458L87.2405 24.289H85.123L91.5135 10.6992L97.5963 24.289H95.4788L94.1315 21.19ZM93.3425 19.342L91.4368 14.9917L89.454 19.342H93.3425Z"/>
+          <path class="brand-logo__text" d="M113.806 13.2972V24.2885H111.842V13.2972H108.897V11.4492H116.751V13.2972H113.806Z"/>
+          <path class="brand-logo__text" d="M137.348 13.297H132.228V16.5502H137.194V18.3982H132.228V22.4405H137.348V24.2885H130.265V11.4492H137.348V13.297Z"/>
+          <path class="brand-logo__text" d="M157.657 21.19H152.171L150.766 24.289H148.648L155.039 10.6992L161.122 24.289H159.004L157.657 21.19ZM156.868 19.342L154.962 14.9917L152.979 19.342H156.868Z"/>
+          <path class="brand-logo__text" d="M173.558 11.4492V19.1875C173.558 19.8805 173.577 20.7275 173.962 21.401C174.347 22.0555 175.213 22.729 176.349 22.729C177.485 22.729 178.351 22.0552 178.736 21.401C179.121 20.7272 179.14 19.8802 179.14 19.1875V11.4492H181.103V19.707C181.103 20.7272 180.892 21.9592 179.91 23.037C179.236 23.7685 178.101 24.5385 176.349 24.5385C174.597 24.5385 173.462 23.7685 172.788 23.037C171.806 21.959 171.595 20.7272 171.595 19.707V11.4492H173.558Z"/>
+          <path class="brand-logo__text" d="M142.407 30.1641V32.4951C142.659 32.1521 143.037 32.0401 143.38 32.0401C143.807 32.0401 144.192 32.2011 144.465 32.4601C144.766 32.7471 144.955 33.1741 144.955 33.6923C144.955 34.1753 144.787 34.6233 144.465 34.9453C144.192 35.2253 143.856 35.3723 143.394 35.3723C142.841 35.3723 142.561 35.1133 142.407 34.8891V35.2673H141.399V30.1643H142.407V30.1641ZM142.568 33.1393C142.449 33.2653 142.344 33.4471 142.344 33.7133C142.344 33.9721 142.456 34.1613 142.575 34.2731C142.736 34.4271 142.96 34.5043 143.149 34.5043C143.324 34.5043 143.52 34.4343 143.674 34.2873C143.821 34.1471 143.919 33.9443 143.919 33.7133C143.919 33.4611 143.821 33.2583 143.674 33.1181C143.513 32.9643 143.338 32.9081 143.135 32.9081C142.918 32.9081 142.729 32.9711 142.568 33.1393Z"/>
+          <path class="brand-logo__text" d="M148.658 34.8675L147.167 32.1445H148.329L149.211 33.8385L150.072 32.1445H151.206L148.693 36.8695H147.559L148.658 34.8675Z"/>
+          <path class="brand-logo__text" d="M157.793 35.2667L158.542 30.5977H159.438L160.6 33.3907L161.762 30.5977H162.658L163.407 35.2667H162.329L161.958 32.4804L160.789 35.2667H160.41L159.241 32.4804L158.871 35.2667H157.793Z"/>
+          <path class="brand-logo__text" d="M168.09 30.5977V34.3564H169.539V35.2667H167.012V30.5977H168.09Z"/>
+          <path class="brand-logo__text" d="M174.327 30.5977V35.2667H173.249V30.5977H174.327Z"/>
+          <path class="brand-logo__text" d="M180.087 31.5077V35.2667H179.009V31.5077H177.994V30.5977H181.102V31.5077H180.087Z"/>
         </svg>
-        <div class="footer__title">PLATEAU Model</div>
+        <div class="footer__title" data-i18n data-ja="PLATEAU by MLIT｜UMLモデル" data-en="PLATEAU by MLIT · UML Models">PLATEAU by MLIT｜UMLモデル</div>
         <div class="footer__title-jp" data-i18n data-ja="3D都市モデル UML仕様ブラウザ" data-en="3D City Model · UML Browser">3D都市モデル UML仕様ブラウザ</div>
         <p class="footer__copy" data-i18n data-ja="国土交通省 Project PLATEAU のデータを、Metanorma / LutaML でブラウザ化しています。" data-en="An interactive UML browser for MLIT Project PLATEAU's 3D City Model specifications, built with Metanorma / LutaML.">国土交通省 Project PLATEAU のデータを、Metanorma / LutaML でブラウザ化しています。</p>
       </div>

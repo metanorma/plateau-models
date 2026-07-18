@@ -1,0 +1,43 @@
+metadata:
+  name: "PLATEAU Model — CityGML 2.0"
+  title: "PLATEAU Model｜CityGML 2.0 UML Browser"
+  description: >
+    Interactive UML browser for the PLATEAU v5.1 (CityGML 2.0) 3D City Model
+    specification from MLIT Japan. Covers i-UR, FGD, and related urban-planning
+    schemas.
+  version: "5.1"
+  license: "PLATEAU license"
+  homepage: "https://www.mlit.go.jp/plateau/"
+  repository: "https://github.com/metanorma/plateau-model"
+  authors:
+    - name: "Ministry of Land, Infrastructure, Transport and Tourism (MLIT Japan)"
+  tags:
+    - plateau
+    - citygml
+    - citygml-2
+    - 3d-city-model
+    - japan
+    - urban-planning
+    - geospatial
+  links:
+    - name: "Project PLATEAU"
+      url: "https://www.mlit.go.jp/plateau/"
+    - name: "PLATEAU Model Portal"
+      url: "https://metanorma.github.io/plateau-model/"
+
+  appearance:
+    logos:
+      square:
+        light:
+          url: "https://www.mlit.go.jp/plateau/assets/img/common/logo.svg"
+        dark:
+          url: "https://www.mlit.go.jp/plateau/assets/img/common/logo_white.svg"
+      long:
+        light:
+          url: "https://www.mlit.go.jp/plateau/assets/img/common/logo.svg"
+        dark:
+          url: "https://www.mlit.go.jp/plateau/assets/img/common/logo_white.svg"
+
+ui:
+  title: "PLATEAU Model｜CityGML 2.0 UML Browser"
+  description: "Interactive UML browser for the PLATEAU v5.1 (CityGML 2.0) 3D City Model."
