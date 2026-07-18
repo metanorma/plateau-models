@@ -1326,11 +1326,12 @@
       const FRUSTUM = 16;
       const camera = new THREE.OrthographicCamera(-FRUSTUM, FRUSTUM, FRUSTUM, -FRUSTUM, 1, 250);
 
-      // Iso angle (~25° elevation). Target y=14 lifts the framing so
-      // the tallest tower (top at y≈40 incl. antenna) stays inside
-      // the top of the frame instead of being clipped.
-      const CAM_BASE = new THREE.Vector3(24, 30, 24);
-      const CAM_TARGET = new THREE.Vector3(0, 14, 0);
+      // Iso angle (~27° elevation). Target y=16 lifts the framing so
+      // the tallest tower (top at y≈30 incl. antenna) sits inside the
+      // frustum with a couple units of breathing room instead of
+      // being clipped at the canvas top edge.
+      const CAM_BASE = new THREE.Vector3(24, 32, 24);
+      const CAM_TARGET = new THREE.Vector3(0, 16, 0);
       camera.position.copy(CAM_BASE);
       camera.lookAt(CAM_TARGET);
 
@@ -1453,13 +1454,16 @@
       barrelVault(vaultR, vaultLen, 0, stH,  2.3, matPurple);
       cyl(0.4, 0.4, 0.2, 0, stH - 1, stD / 2 + 0.05, matTeal, 10);
 
-      // Towers + antenna + annex
-      box(3.5, 34, 3.5, -4, 0, -10, matPurple);
-      segLine(-4, 34, -10, -4, 40, -10, matPurple);
-      box(4, 22, 4, 1, 0, -10, matPurple);
-      box(3, 4, 3, 1, 22, -10, matPurple);
-      box(4, 28, 4, 7, 0, -10, matPurple);
-      box(3, 14, 3, 11, 0, -7, matPurple);
+      // Towers + antenna + annex. Heights sized to fit inside the
+      // camera frustum (visible upper bound ≈ y=34 at target 16 /
+      // FRUSTUM 16): Tower 1 is tallest at 28 + 4 antenna = top at
+      // 32, with comfortable margin.
+      box(3.5, 28, 3.5, -4, 0, -10, matPurple);
+      segLine(-4, 28, -10, -4, 32, -10, matPurple);
+      box(4, 18, 4, 1, 0, -10, matPurple);
+      box(3, 3, 3, 1, 21, -10, matPurple);
+      box(4, 24, 4, 7, 0, -10, matPurple);
+      box(3, 12, 3, 11, 0, -7, matPurple);
 
       // Retail pavilion
       box(3, 3, 3, 11, 0, 5, matPurple);
@@ -1473,14 +1477,14 @@
           segLine(x - w/2, y, z + d/2, x + w/2, y, z + d/2, mat);
         }
       }
-      floorLines(-4, -10, 3.5, 3.5, 0, 34, matPurpleSoft);
-      floorLines( 1, -10, 4,   4,   0, 22, matPurpleSoft);
-      floorLines( 7, -10, 4,   4,   0, 28, matPurpleSoft);
+      floorLines(-4, -10, 3.5, 3.5, 0, 28, matPurpleSoft);
+      floorLines( 1, -10, 4,   4,   0, 18, matPurpleSoft);
+      floorLines( 7, -10, 4,   4,   0, 24, matPurpleSoft);
 
       // ----- annotation anchors (HTML chips follow these) --------
       const ANCHORS = {
         station: new THREE.Vector3(0,     stH + 2.5, 0),
-        tower:   new THREE.Vector3(-4,    36,        -10),
+        tower:   new THREE.Vector3(-4,    30,        -10),
         dome:    new THREE.Vector3(domeX, 8.5,       domeZ),
         park:    new THREE.Vector3(-10,   2,         13),
         plaza:   new THREE.Vector3(6,     1,         6),
