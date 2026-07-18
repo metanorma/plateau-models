@@ -269,29 +269,32 @@
     html[data-theme="dark"] .icon-btn .sun { display: block; }
 
     /* ============================================================
-       Hero
+       Hero — the wireframe scene is the dominant element: a wide,
+       full-bleed canvas sitting next to a compact text column.
        ============================================================ */
     .hero {
       position: relative;
-      max-width: var(--max-w);
+      max-width: 1440px;
       margin: 0 auto;
-      padding: 72px 28px 56px;
+      padding: 64px 32px 64px;
       display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-      gap: 48px;
+      grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+      gap: 56px;
       align-items: center;
     }
-    @media (max-width: 960px) {
-      .hero { grid-template-columns: 1fr; gap: 32px; padding: 56px 28px 40px; }
+    @media (max-width: 1180px) {
+      .hero { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 40px; padding: 56px 28px 56px; }
+    }
+    @media (max-width: 920px) {
+      .hero { grid-template-columns: 1fr; gap: 28px; padding: 48px 20px 40px; }
     }
 
     .hero__copy { min-width: 0; }
 
     .hero__art {
       position: relative;
-      aspect-ratio: 5 / 3;
+      aspect-ratio: 4 / 3;
       width: 100%;
-      max-width: 720px;
       margin-left: auto;
       overflow: visible;
     }
@@ -1305,14 +1308,16 @@
 
     // OrthographicCamera for true axonometric projection — no
     // perspective distortion, which is what makes architectural
-    // drawings readable. Frustum is sized in resize().
-    const FRUSTUM = 30;
+    // drawings readable. Frustum is sized in resize(); FRUSTUM is
+    // the half-height in world units (so the visible vertical
+    // extent is 2 × FRUSTUM).
+    const FRUSTUM = 22;
     const camera = new THREE.OrthographicCamera(-FRUSTUM, FRUSTUM, FRUSTUM, -FRUSTUM, 1, 250);
 
     // Classic iso position (1, 1/√2, 1) direction — high enough to
     // see tower tops, low enough to read roof forms.
-    const CAM_BASE = new THREE.Vector3(38, 28, 38);
-    const CAM_TARGET = new THREE.Vector3(0, 5, 0);
+    const CAM_BASE = new THREE.Vector3(34, 26, 34);
+    const CAM_TARGET = new THREE.Vector3(0, 4, 0);
     camera.position.copy(CAM_BASE);
     camera.lookAt(CAM_TARGET);
 
