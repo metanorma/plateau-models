@@ -3,6 +3,9 @@
 vendor/bundle/
 Gemfile.lock
 
-# Generated files
+# Generated SPA outputs (one subdirectory per model)
+/citygml-2/
+/citygml-3/
+
+# Legacy single-file output
 browser.html
-index.html
