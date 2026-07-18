@@ -1292,294 +1292,295 @@
     The scene is intentionally static; the only motion is a subtle
     camera parallax tied to the pointer, which gives the 3D form a
     chance to "breathe" without distracting from the typography.
-    Annotation chips are HTML overlays positioned each frame by
-    projecting their 3D anchor points into 2D screen space.
+    Annotation chips are HTML overlays positioned by projecting
+    their 3D anchor points into 2D screen space whenever the camera
+    actually moves (resize or pointer event), not every frame.
+    Rendering pauses when the canvas scrolls offscreen.
   -->
   <script type="module">
-    import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+    const wfCanvas = document.querySelector("[data-wireframe]");
+    const wfRoot = document.documentElement;
 
-    const root = document.documentElement;
-    const canvas = document.querySelector("[data-wireframe]");
-    if (!canvas) throw new Error("wireframe canvas missing");
-
-    const container = canvas.parentElement;
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: true,
-      powerPreference: "high-performance",
-    });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-    // OrthographicCamera for true axonometric projection — no
-    // perspective distortion, which is what makes architectural
-    // drawings readable. Frustum is sized in resize(); FRUSTUM is
-    // the half-height in world units (so the visible vertical
-    // extent is 2 × FRUSTUM). Tight value (16) zooms in on the
-    // district so the buildings read large in the canvas instead
-    // of being lost in negative space.
-    const FRUSTUM = 16;
-    const camera = new THREE.OrthographicCamera(-FRUSTUM, FRUSTUM, FRUSTUM, -FRUSTUM, 1, 250);
-
-    // Camera angle kept near true iso (~30° elevation). Target y=14
-    // lifts the framing so the tallest tower (top at y≈40 incl.
-    // antenna) stays inside the top of the frame instead of being
-    // clipped. Horizontal distance 34 → vertical offset 16 →
-    // angle ≈ atan(16/34) ≈ 25°, a touch gentler than textbook iso
-    // but good for showing roof forms.
-    const CAM_BASE = new THREE.Vector3(24, 30, 24);
-    const CAM_TARGET = new THREE.Vector3(0, 14, 0);
-    camera.position.copy(CAM_BASE);
-    camera.lookAt(CAM_TARGET);
-
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0xFFFFFF, 90, 160);
-
-    // ----- helpers -------------------------------------------------
-    function cssColor(name, fallback) {
-      const v = getComputedStyle(root).getPropertyValue(name).trim();
-      return v || fallback;
+    // Bail out silently if WebGL is unavailable — the page still
+    // works as a type-only hero, just without the illustration.
+    let THREE;
+    try {
+      THREE = await import("https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js");
+    } catch (err) {
+      console.warn("Three.js failed to load; wireframe disabled.", err);
     }
-    function makeLineMaterial(colorVar, fallback, opacity = 0.92) {
-      return new THREE.LineBasicMaterial({
-        color: new THREE.Color(cssColor(colorVar, fallback)),
-        transparent: true,
-        opacity,
+
+    if (THREE && wfCanvas) try {
+      const container = wfCanvas.parentElement;
+      const renderer = new THREE.WebGLRenderer({
+        canvas: wfCanvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: "high-performance",
       });
-    }
-    let matPurple = makeLineMaterial("--brand-purple", "#463C64");
-    let matPurpleSoft = makeLineMaterial("--brand-purple", "#463C64", 0.4);
-    let matTeal = makeLineMaterial("--brand-teal", "#00BEBE");
-    let matTealSoft = makeLineMaterial("--brand-teal", "#00BEBE", 0.55);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    // Convert any geometry into a wireframe line set.
-    function edges(geo) {
-      const e = new THREE.EdgesGeometry(geo, 1);
-      geo.dispose();
-      return e;
-    }
+      // OrthographicCamera → true axonometric projection. FRUSTUM is
+      // the half-height in world units. Tight value (16) zooms in so
+      // the district fills the canvas instead of sitting in margins.
+      const FRUSTUM = 16;
+      const camera = new THREE.OrthographicCamera(-FRUSTUM, FRUSTUM, FRUSTUM, -FRUSTUM, 1, 250);
 
-    function addBox(parent, w, h, d, x, y, z, mat) {
-      const seg = new THREE.LineSegments(edges(new THREE.BoxGeometry(w, h, d)), mat);
-      seg.position.set(x, y + h / 2, z);
-      parent.add(seg);
-      return seg;
-    }
-    function addCyl(parent, rT, rB, h, x, y, z, mat, segments = 24) {
-      const seg = new THREE.LineSegments(edges(new THREE.CylinderGeometry(rT, rB, h, segments)), mat);
-      seg.position.set(x, y + h / 2, z);
-      parent.add(seg);
-      return seg;
-    }
-    function addBarrelVault(parent, r, length, x, y, z, mat) {
-      // Half-cylinder oriented along X axis (barrel vault axis)
-      const geo = new THREE.CylinderGeometry(r, r, length, 18, 1, true, 0, Math.PI);
-      geo.rotateZ(Math.PI / 2);  // axis → X
-      const seg = new THREE.LineSegments(edges(geo), mat);
-      seg.position.set(x, y, z);
-      parent.add(seg);
-      return seg;
-    }
-    function addHemi(parent, r, x, y, z, mat) {
-      const geo = new THREE.SphereGeometry(r, 18, 12, 0, Math.PI * 2, 0, Math.PI / 2);
-      const seg = new THREE.LineSegments(edges(geo), mat);
-      seg.position.set(x, y, z);
-      parent.add(seg);
-      return seg;
-    }
-    function addLine(parent, ax, ay, az, bx, by, bz, mat) {
-      const g = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(ax, ay, az),
-        new THREE.Vector3(bx, by, bz),
-      ]);
-      parent.add(new THREE.Line(g, mat));
-    }
-
-    // ----- ground grid (subtle) -----------------------------------
-    const grid = new THREE.GridHelper(80, 20, cssColor("--brand-purple", "#463C64"), cssColor("--brand-purple", "#463C64"));
-    grid.material.transparent = true;
-    grid.material.opacity = 0.12;
-    scene.add(grid);
-
-    // ----- plaza slab (faint square in front of station) ---------
-    addBox(scene, 16, 0.2, 10, 6, 0, 6, matPurpleSoft);
-    // Inscribe a finer grid on the plaza
-    for (let i = -2; i <= 2; i++) {
-      addLine(scene, -2, 0.15, 6 + i * 2, 14, 0.15, 6 + i * 2, matPurpleSoft);
-      addLine(scene, -2 + i * 3.2 + 4, 0.15, 1, -2 + i * 3.2 + 4, 0.15, 11, matPurpleSoft);
-    }
-
-    // ----- park plinth + trees (teal: open space) ----------------
-    addBox(scene, 12, 0.3, 9, -10, 0, 9, matTealSoft);
-
-    function addTree(x, z, scale = 1) {
-      addCyl(scene, 0.15 * scale, 0.2 * scale, 1.8 * scale, x, 0.3, z, matTeal, 8);
-      addHemi(scene, 1.2 * scale, x, 0.3 + 1.8 * scale, z, matTeal);
-    }
-    addTree(-13, 6, 1.1);
-    addTree(-9,  11, 1);
-    addTree(-6,  7, 0.85);
-    addTree(-12, 12, 0.95);
-    addTree(-7,  13, 1.05);
-    // street trees
-    addTree(2,  13, 0.9);
-    addTree(14, 11, 0.85);
-    addTree(18, 8, 0.8);
-
-    // ----- train tracks (running E-W through station) ------------
-    addLine(scene, -30, 0.08, -1.2, 30, 0.08, -1.2, matTeal);
-    addLine(scene, -30, 0.08,  1.2, 30, 0.08,  1.2, matTeal);
-    for (let x = -28; x <= 28; x += 2.5) {
-      addLine(scene, x, 0.08, -1.4, x, 0.08, 1.4, matTealSoft);
-    }
-
-    // ----- mid-rise block (front-left of station) ----------------
-    addBox(scene, 6, 10, 8, -12, 0, 1, matPurple);
-
-    // ----- civic dome (back-left) — columned drum + hemisphere ---
-    const domeX = -10, domeZ = -7;
-    addCyl(scene, 3.5, 3.5, 4, domeX, 0, domeZ, matTeal, 24);
-    addHemi(scene, 3.5, domeX, 4, domeZ, matTeal);
-    // Lantern
-    addCyl(scene, 0.4, 0.4, 1, domeX, 7, domeZ, matTeal, 8);
-    addHemi(scene, 0.5, domeX, 8, domeZ, matTeal, 8, 0, Math.PI*2, 0, Math.PI/2);
-    // Column rhythm
-    for (let i = 0; i < 8; i++) {
-      const a = (i / 8) * Math.PI * 2;
-      const cx = domeX + Math.cos(a) * 3.2;
-      const cz = domeZ + Math.sin(a) * 3.2;
-      addCyl(scene, 0.12, 0.12, 3.8, cx, 0, cz, matTealSoft, 6);
-    }
-
-    // ----- train station (center) — concourse + 3 barrel vaults --
-    const stW = 12, stD = 8, stH = 5;
-    addBox(scene, stW, stH, stD, 0, 0, 0, matPurple);
-    // Three barrel vaults on top, axis along X
-    const vaultR = 1.4;
-    const vaultLen = stW + 0.6;
-    addBarrelVault(scene, vaultR, vaultLen, 0, stH, -2.3, matPurple);
-    addBarrelVault(scene, vaultR, vaultLen, 0, stH,  0.0, matPurple);
-    addBarrelVault(scene, vaultR, vaultLen, 0, stH,  2.3, matPurple);
-    // Clock on the front facade
-    addCyl(scene, 0.4, 0.4, 0.2, 0, stH - 1, stD / 2 + 0.05, matTeal, 16);
-
-    // ----- towers (purple: built form) ---------------------------
-    // Tower 1 — tallest, with antenna
-    addBox(scene, 3.5, 34, 3.5, -4, 0, -10, matPurple);
-    addLine(scene, -4, 34, -10, -4, 40, -10, matPurple);
-    // Tower 2 — medium, set-back top
-    addBox(scene, 4, 22, 4, 1, 0, -10, matPurple);
-    addBox(scene, 3, 4, 3, 1, 22, -10, matPurple);
-    // Tower 3 — back-right
-    addBox(scene, 4, 28, 4, 7, 0, -10, matPurple);
-    // A short annex between towers
-    addBox(scene, 3, 14, 3, 11, 0, -7, matPurple);
-
-    // ----- retail pavilion (plaza corner) ------------------------
-    addBox(scene, 3, 3, 3, 11, 0, 5, matPurple);
-
-    // ----- tower floor lines (subtle horizontal bands) -----------
-    function floorLines(x, z, w, d, baseY, topY, mat) {
-      for (let y = baseY + 4; y < topY; y += 4) {
-        addLine(scene, x - w/2, y, z - d/2, x - w/2, y, z + d/2, mat);
-        addLine(scene, x + w/2, y, z - d/2, x + w/2, y, z + d/2, mat);
-        addLine(scene, x - w/2, y, z - d/2, x + w/2, y, z - d/2, mat);
-        addLine(scene, x - w/2, y, z + d/2, x + w/2, y, z + d/2, mat);
-      }
-    }
-    floorLines(-4, -10, 3.5, 3.5, 0, 34, matPurpleSoft);
-    floorLines( 1, -10, 4,   4,   0, 22, matPurpleSoft);
-    floorLines( 7, -10, 4,   4,   0, 28, matPurpleSoft);
-
-    // ----- annotation anchors (3D points the HTML chips follow) --
-    const ANCHORS = {
-      station: new THREE.Vector3(0,       stH + 2.5, 0),
-      tower:   new THREE.Vector3(-4,      36,        -10),
-      dome:    new THREE.Vector3(domeX,   8.5,       domeZ),
-      park:    new THREE.Vector3(-10,     2,         13),
-      plaza:   new THREE.Vector3(6,       1,         6),
-    };
-    const chips = {}, dots = {};
-    Object.keys(ANCHORS).forEach((key) => {
-      chips[key] = container.querySelector(`[data-anno="${key}"]`);
-      dots[key]  = container.querySelector(`[data-anno-dot="${key}"]`);
-    });
-
-    // ----- pointer parallax (subtle) ------------------------------
-    let pointer = { x: 0, y: 0 };
-    window.addEventListener("pointermove", (e) => {
-      const r = container.getBoundingClientRect();
-      pointer.x = ((e.clientX - r.left) / r.width)  * 2 - 1;
-      pointer.y = ((e.clientY - r.top)  / r.height) * 2 - 1;
-    }, { passive: true });
-
-    // ----- resize --------------------------------------------------
-    function resize() {
-      const r = container.getBoundingClientRect();
-      const w = Math.max(1, r.width);
-      const h = Math.max(1, r.height);
-      renderer.setSize(w, h, false);
-      const aspect = w / h;
-      camera.left   = -FRUSTUM * aspect;
-      camera.right  =  FRUSTUM * aspect;
-      camera.top    =  FRUSTUM;
-      camera.bottom = -FRUSTUM;
-      camera.updateProjectionMatrix();
-    }
-    resize();
-    window.addEventListener("resize", resize);
-
-    // ----- theme change → refresh material colors -----------------
-    function refreshMaterials() {
-      matPurple.color       .set(cssColor("--brand-purple", "#463C64"));
-      matPurpleSoft.color   .set(cssColor("--brand-purple", "#463C64"));
-      matTeal.color         .set(cssColor("--brand-teal",   "#00BEBE"));
-      matTealSoft.color     .set(cssColor("--brand-teal",   "#00BEBE"));
-      // fog tracks the surface color so lines fade gently at distance
-      scene.fog.color.set(cssColor("--surface", "#FFFFFF"));
-      // grid color
-      grid.material.color.set(cssColor("--brand-purple", "#463C64"));
-    }
-    window.addEventListener("plateau:theme-changed", refreshMaterials);
-
-    // ----- render loop --------------------------------------------
-    const proj = new THREE.Vector3();
-    function frame() {
-      // Camera drifts subtly with the pointer.
-      camera.position.x = CAM_BASE.x + pointer.x * 3;
-      camera.position.y = CAM_BASE.y - pointer.y * 2;
-      camera.position.z = CAM_BASE.z + pointer.x * 1.5;
+      // Iso angle (~25° elevation). Target y=14 lifts the framing so
+      // the tallest tower (top at y≈40 incl. antenna) stays inside
+      // the top of the frame instead of being clipped.
+      const CAM_BASE = new THREE.Vector3(24, 30, 24);
+      const CAM_TARGET = new THREE.Vector3(0, 14, 0);
+      camera.position.copy(CAM_BASE);
       camera.lookAt(CAM_TARGET);
 
-      renderer.render(scene, camera);
+      const scene = new THREE.Scene();
 
-      // Update annotation chips in screen space.
-      const r = container.getBoundingClientRect();
-      Object.entries(ANCHORS).forEach(([key, pos]) => {
-        proj.copy(pos).project(camera);
-        const x = (proj.x * 0.5 + 0.5) * r.width;
-        const y = (-proj.y * 0.5 + 0.5) * r.height;
-        const chip = chips[key], dot = dots[key];
-        if (!chip || !dot) return;
-        // Nudge chips to the side so they don't sit on top of the dot.
-        const dx = x + 14;
-        const dy = y - 10;
-        chip.style.left = dx + "px";
-        chip.style.top  = dy + "px";
-        dot.style.left  = x + "px";
-        dot.style.top   = y + "px";
+      // ----- materials --------------------------------------------
+      function cssColor(name, fallback) {
+        const v = getComputedStyle(wfRoot).getPropertyValue(name).trim();
+        return v || fallback;
+      }
+      function lineMat(colorVar, fallback, opacity = 0.92) {
+        return new THREE.LineBasicMaterial({
+          color: new THREE.Color(cssColor(colorVar, fallback)),
+          transparent: true,
+          opacity,
+        });
+      }
+      const matPurple     = lineMat("--brand-purple", "#463C64");
+      const matPurpleSoft = lineMat("--brand-purple", "#463C64", 0.4);
+      const matTeal       = lineMat("--brand-teal",   "#00BEBE");
+      const matTealSoft   = lineMat("--brand-teal",   "#00BEBE", 0.55);
+
+      // EdgesGeometry with a higher threshold (20°) so smooth
+      // curved surfaces (cylinders, hemispheres) collapse to just
+      // their boundary edges — cleaner wireframe, ~95% fewer lines
+      // than threshold=1°.
+      function edges(geo) {
+        const e = new THREE.EdgesGeometry(geo, 20);
+        geo.dispose();
+        return e;
+      }
+
+      function box(w, h, d, x, y, z, mat) {
+        const s = new THREE.LineSegments(edges(new THREE.BoxGeometry(w, h, d)), mat);
+        s.position.set(x, y + h / 2, z);
+        scene.add(s);
+      }
+      function cyl(rT, rB, h, x, y, z, mat, segments = 10) {
+        const s = new THREE.LineSegments(edges(new THREE.CylinderGeometry(rT, rB, h, segments)), mat);
+        s.position.set(x, y + h / 2, z);
+        scene.add(s);
+      }
+      function barrelVault(r, length, x, y, z, mat) {
+        const geo = new THREE.CylinderGeometry(r, r, length, 12, 1, true, 0, Math.PI);
+        geo.rotateZ(Math.PI / 2);
+        const s = new THREE.LineSegments(edges(geo), mat);
+        s.position.set(x, y, z);
+        scene.add(s);
+      }
+      function hemi(r, x, y, z, mat) {
+        const geo = new THREE.SphereGeometry(r, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2);
+        const s = new THREE.LineSegments(edges(geo), mat);
+        s.position.set(x, y, z);
+        scene.add(s);
+      }
+      function segLine(ax, ay, az, bx, by, bz, mat) {
+        const g = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(ax, ay, az),
+          new THREE.Vector3(bx, by, bz),
+        ]);
+        scene.add(new THREE.Line(g, mat));
+      }
+
+      // ----- scene construction -----------------------------------
+      // Ground grid (low-opacity reference plane)
+      const grid = new THREE.GridHelper(80, 20, cssColor("--brand-purple", "#463C64"), cssColor("--brand-purple", "#463C64"));
+      grid.material.transparent = true;
+      grid.material.opacity = 0.12;
+      scene.add(grid);
+
+      // Plaza slab + paving lines
+      box(16, 0.2, 10, 6, 0, 6, matPurpleSoft);
+      for (let i = -2; i <= 2; i++) {
+        segLine(-2, 0.15, 6 + i * 2, 14, 0.15, 6 + i * 2, matPurpleSoft);
+        segLine(-2 + i * 3.2 + 4, 0.15, 1, -2 + i * 3.2 + 4, 0.15, 11, matPurpleSoft);
+      }
+
+      // Park plinth
+      box(12, 0.3, 9, -10, 0, 9, matTealSoft);
+      function tree(x, z, scale = 1) {
+        cyl(0.15 * scale, 0.2 * scale, 1.8 * scale, x, 0.3, z, matTeal, 6);
+        hemi(1.2 * scale, x, 0.3 + 1.8 * scale, z, matTeal);
+      }
+      tree(-13, 6, 1.1);
+      tree(-9,  11, 1);
+      tree(-6,  7, 0.85);
+      tree(-12, 12, 0.95);
+      tree(-7,  13, 1.05);
+      tree(2,  13, 0.9);
+      tree(14, 11, 0.85);
+      tree(18, 8, 0.8);
+
+      // Train tracks (E-W through station)
+      segLine(-30, 0.08, -1.2, 30, 0.08, -1.2, matTeal);
+      segLine(-30, 0.08,  1.2, 30, 0.08,  1.2, matTeal);
+      for (let x = -28; x <= 28; x += 3.5) {
+        segLine(x, 0.08, -1.4, x, 0.08, 1.4, matTealSoft);
+      }
+
+      // Mid-rise block
+      box(6, 10, 8, -12, 0, 1, matPurple);
+
+      // Civic dome
+      const domeX = -10, domeZ = -7;
+      cyl(3.5, 3.5, 4, domeX, 0, domeZ, matTeal, 12);
+      hemi(3.5, domeX, 4, domeZ, matTeal);
+      cyl(0.4, 0.4, 1, domeX, 7, domeZ, matTeal, 6);
+      hemi(0.5, domeX, 8, domeZ, matTeal);
+      for (let i = 0; i < 8; i++) {
+        const a = (i / 8) * Math.PI * 2;
+        cyl(0.1, 0.1, 3.8, domeX + Math.cos(a) * 3.2, 0, domeZ + Math.sin(a) * 3.2, matTealSoft, 5);
+      }
+
+      // Train station (box + 3 barrel vaults + clock)
+      const stW = 12, stD = 8, stH = 5;
+      box(stW, stH, stD, 0, 0, 0, matPurple);
+      const vaultR = 1.4, vaultLen = stW + 0.6;
+      barrelVault(vaultR, vaultLen, 0, stH, -2.3, matPurple);
+      barrelVault(vaultR, vaultLen, 0, stH,  0.0, matPurple);
+      barrelVault(vaultR, vaultLen, 0, stH,  2.3, matPurple);
+      cyl(0.4, 0.4, 0.2, 0, stH - 1, stD / 2 + 0.05, matTeal, 10);
+
+      // Towers + antenna + annex
+      box(3.5, 34, 3.5, -4, 0, -10, matPurple);
+      segLine(-4, 34, -10, -4, 40, -10, matPurple);
+      box(4, 22, 4, 1, 0, -10, matPurple);
+      box(3, 4, 3, 1, 22, -10, matPurple);
+      box(4, 28, 4, 7, 0, -10, matPurple);
+      box(3, 14, 3, 11, 0, -7, matPurple);
+
+      // Retail pavilion
+      box(3, 3, 3, 11, 0, 5, matPurple);
+
+      // Tower floor bands (subtle)
+      function floorLines(x, z, w, d, baseY, topY, mat) {
+        for (let y = baseY + 4; y < topY; y += 4) {
+          segLine(x - w/2, y, z - d/2, x - w/2, y, z + d/2, mat);
+          segLine(x + w/2, y, z - d/2, x + w/2, y, z + d/2, mat);
+          segLine(x - w/2, y, z - d/2, x + w/2, y, z - d/2, mat);
+          segLine(x - w/2, y, z + d/2, x + w/2, y, z + d/2, mat);
+        }
+      }
+      floorLines(-4, -10, 3.5, 3.5, 0, 34, matPurpleSoft);
+      floorLines( 1, -10, 4,   4,   0, 22, matPurpleSoft);
+      floorLines( 7, -10, 4,   4,   0, 28, matPurpleSoft);
+
+      // ----- annotation anchors (HTML chips follow these) --------
+      const ANCHORS = {
+        station: new THREE.Vector3(0,     stH + 2.5, 0),
+        tower:   new THREE.Vector3(-4,    36,        -10),
+        dome:    new THREE.Vector3(domeX, 8.5,       domeZ),
+        park:    new THREE.Vector3(-10,   2,         13),
+        plaza:   new THREE.Vector3(6,     1,         6),
+      };
+      const chips = {}, dots = {};
+      Object.keys(ANCHORS).forEach((key) => {
+        chips[key] = container.querySelector(`[data-anno="${key}"]`);
+        dots[key]  = container.querySelector(`[data-anno-dot="${key}"]`);
       });
 
-      requestAnimationFrame(frame);
-    }
-    // Run after the canvas has its real dimensions.
-    requestAnimationFrame(() => { resize(); frame(); });
+      // ----- pointer parallax (subtle, disabled under reduced motion)
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let pointer = { x: 0, y: 0 };
+      if (!reducedMotion) {
+        window.addEventListener("pointermove", (e) => {
+          const r = container.getBoundingClientRect();
+          pointer.x = ((e.clientX - r.left) / r.width)  * 2 - 1;
+          pointer.y = ((e.clientY - r.top)  / r.height) * 2 - 1;
+          dirty = true;
+        }, { passive: true });
+      }
 
-    // Honour reduced-motion preference: skip parallax entirely.
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      window.removeEventListener("pointermove", () => {});
-      pointer.x = 0;
-      pointer.y = 0;
+      // ----- cached layout, only re-read on resize ---------------
+      let bounds = { w: 0, h: 0 };
+      function resize() {
+        const r = container.getBoundingClientRect();
+        bounds.w = Math.max(1, r.width);
+        bounds.h = Math.max(1, r.height);
+        renderer.setSize(bounds.w, bounds.h, false);
+        const aspect = bounds.w / bounds.h;
+        camera.left   = -FRUSTUM * aspect;
+        camera.right  =  FRUSTUM * aspect;
+        camera.top    =  FRUSTUM;
+        camera.bottom = -FRUSTUM;
+        camera.updateProjectionMatrix();
+        dirty = true;
+      }
+      window.addEventListener("resize", resize);
+
+      // ----- theme change → refresh material colors --------------
+      function refreshMaterials() {
+        matPurple.color       .set(cssColor("--brand-purple", "#463C64"));
+        matPurpleSoft.color   .set(cssColor("--brand-purple", "#463C64"));
+        matTeal.color         .set(cssColor("--brand-teal",   "#00BEBE"));
+        matTealSoft.color     .set(cssColor("--brand-teal",   "#00BEBE"));
+        grid.material.color   .set(cssColor("--brand-purple", "#463C64"));
+        dirty = true;
+      }
+      window.addEventListener("plateau:theme-changed", refreshMaterials);
+
+      // ----- pause when offscreen --------------------------------
+      let visible = true;
+      const io = new IntersectionObserver((entries) => {
+        visible = entries[0].isIntersecting;
+        if (visible) dirty = true;
+      }, { threshold: 0 });
+      io.observe(container);
+
+      // ----- annotation chips ------------------------------------
+      const proj = new THREE.Vector3();
+      function placeAnnotations() {
+        for (const key in ANCHORS) {
+          const pos = ANCHORS[key];
+          proj.copy(pos).project(camera);
+          const x = (proj.x * 0.5 + 0.5) * bounds.w;
+          const y = (-proj.y * 0.5 + 0.5) * bounds.h;
+          const chip = chips[key], dot = dots[key];
+          if (!chip || !dot) continue;
+          chip.style.left = (x + 14) + "px";
+          chip.style.top  = (y - 10) + "px";
+          dot.style.left  = x + "px";
+          dot.style.top   = y + "px";
+        }
+      }
+
+      // ----- render loop -----------------------------------------
+      // Camera drifts subtly with the pointer (re-render only when
+      // something has actually changed — pointer move, resize,
+      // theme toggle, or scroll into view).
+      let dirty = true;
+      function frame() {
+        requestAnimationFrame(frame);
+        if (!visible) return;
+        if (!dirty) return;
+
+        camera.position.x = CAM_BASE.x + pointer.x * 3;
+        camera.position.y = CAM_BASE.y - pointer.y * 2;
+        camera.position.z = CAM_BASE.z + pointer.x * 1.5;
+        camera.lookAt(CAM_TARGET);
+
+        renderer.render(scene, camera);
+        placeAnnotations();
+        dirty = false;
+      }
+
+      // Initial sizing + first frame
+      resize();
+      requestAnimationFrame(frame);
+    } catch (err) {
+      console.warn("Wireframe scene failed to initialize.", err);
     }
   </script>
 
