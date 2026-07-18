@@ -29,14 +29,14 @@ metadata:
     logos:
       square:
         light:
-          url: "https://www.mlit.go.jp/plateau/assets/img/common/logo.svg"
+          path: "../images/logo-plateau_logo-square.svg"
         dark:
-          url: "https://www.mlit.go.jp/plateau/assets/img/common/logo_white.svg"
+          path: "../images/logo-plateau_logo-square-dark.svg"
       long:
         light:
-          url: "https://www.mlit.go.jp/plateau/assets/img/common/logo.svg"
+          path: "../images/logo-plateau_logo-square.svg"
         dark:
-          url: "https://www.mlit.go.jp/plateau/assets/img/common/logo_white.svg"
+          path: "../images/logo-plateau_logo-square-dark.svg"
 
 ui:
   title: "PLATEAU Model｜CityGML 2.0 UML Browser"

@@ -1,4 +1,4 @@
 source "https://rubygems.org"
 
-gem "ea", "~> 0.2", ">= 0.2.4"
-gem "lutaml-uml", "~> 0.5"
+gem "ea", "~> 0.2", ">= 0.2.5"
+gem "lutaml-uml", "~> 0.5", ">= 0.5.2"
