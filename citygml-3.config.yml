@@ -41,3 +41,7 @@ metadata:
 ui:
   title: "PLATEAU Model｜CityGML 3.0 UML Browser"
   description: "Interactive UML browser for the next-generation PLATEAU (CityGML 3.0 Consolidated Draft) 3D City Model."
+
+# Hide diagrams in the SPA until the renderer matches EA visual fidelity.
+diagrams:
+  enabled: false
