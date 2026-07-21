@@ -30,16 +30,16 @@ jobs:
 
       # Native Ea::Model pipeline. Sharded mode because CityGML 3.0
       # (45 MB QEA) is too large for single-file output.
-      - name: Generate CityGML 2.0 SPA (PLATEAU v5.1)
+      - name: Generate CityGML 2.0 SPA (PLATEAU v5.0)
         run: |
-          bundle exec ea spa 20251010_current_plateau_v5.1.qea \
+          bundle exec ea spa models/20260227_current_plateau_v5.0.qea \
             --config citygml-2.config.yml \
             --mode=sharded \
             -o citygml-2
 
       - name: Generate CityGML 3.0 SPA (Consolidated Draft)
         run: |
-          bundle exec ea spa 20260323_CityGML_3.0_Consolidated_Draft.qea \
+          bundle exec ea spa models/20260323_CityGML_3.0_Consolidated_Draft.qea \
             --config citygml-3.config.yml \
             --mode=sharded \
             -o citygml-3
