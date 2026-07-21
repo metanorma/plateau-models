@@ -2,10 +2,10 @@ metadata:
   name: "PLATEAU Model — CityGML 2.0"
   title: "PLATEAU Model｜CityGML 2.0 UML Browser"
   description: >
-    Interactive UML browser for the PLATEAU v5.1 (CityGML 2.0) 3D City Model
+    Interactive UML browser for the PLATEAU v5.0 (CityGML 2.0) 3D City Model
     specification from MLIT Japan. Covers i-UR, FGD, and related urban-planning
     schemas.
-  version: "5.1"
+  version: "5.0"
   license: "PLATEAU license"
   homepage: "https://www.mlit.go.jp/plateau/"
   repository: "https://github.com/metanorma/plateau-models"
@@ -40,4 +40,8 @@ metadata:
 
 ui:
   title: "PLATEAU Model｜CityGML 2.0 UML Browser"
-  description: "Interactive UML browser for the PLATEAU v5.1 (CityGML 2.0) 3D City Model."
+  description: "Interactive UML browser for the PLATEAU v5.0 (CityGML 2.0) 3D City Model."
+
+# Hide diagrams in the SPA until the renderer matches EA visual fidelity.
+diagrams:
+  enabled: false
